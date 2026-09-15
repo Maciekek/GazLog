@@ -5,6 +5,7 @@ import Privacy from './Privacy'
 import Terms from './Terms'
 import ConfirmDeleteModal from './ConfirmDeleteModal'
 import UserMenu from './UserMenu'
+import Charts from './Charts'
 import GuidesIndex from './guides/GuidesIndex'
 import InstallCost from './guides/InstallCost'
 import LpgVsPetrol from './guides/LpgVsPetrol'
@@ -142,6 +143,7 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
         <>
           {summary && <SummaryCard s={summary} />}
           <button className="fab" onClick={startAdd}>+ Nowe tankowanie</button>
+          {settings && <Charts items={items} installCost={settings.installCost} />}
           <div className="card">
             <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Historia</h2>
             {items.length === 0 ? (

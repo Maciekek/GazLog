@@ -187,3 +187,34 @@ button.danger.solid:disabled { opacity: 0.45; }
 .calc-out strong { font-size: 1.05rem; }
 .calc-out .hl { background: var(--accent-bg); }
 .calc-out .hl strong { color: var(--accent); }
+
+/* ---- charts ---- */
+.charts { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+.chart { margin: 0; position: relative; }
+.chart figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.chart-title { font-weight: 600; font-size: 1rem; }
+.chart-sub { font-size: 0.85rem; color: var(--muted); }
+.chart svg { display: block; max-width: 100%; touch-action: pan-y; }
+.chart figcaption { padding: 0 0 0 0; }
+.chart .card-body { }
+.chart .grid { stroke: var(--border); stroke-width: 1; }
+.chart .tick { fill: var(--muted); font-size: 11px; }
+.chart .ref { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; }
+.chart .ref-label { fill: var(--muted); font-size: 11px; }
+.chart .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .line.rolling { stroke: var(--text); stroke-width: 2; }
+.chart .area { fill: var(--accent); opacity: 0.12; }
+.chart .dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+.chart .dot.paid { fill: var(--card); stroke: var(--accent); stroke-width: 3; }
+.chart .dot.hover { fill: var(--card); stroke: var(--accent); stroke-width: 3; }
+.chart .crosshair { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .bar { fill: var(--accent); opacity: 0.85; }
+.chart .bar.hover { opacity: 1; }
+.legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
+.legend .sw { display: inline-block; width: 12px; height: 12px; vertical-align: -2px; margin-right: 4px; border-radius: 2px; }
+.legend .sw.bar { background: var(--accent); opacity: 0.85; }
+.legend .sw.line { height: 2px; width: 16px; background: var(--text); vertical-align: 3px; border-radius: 1px; }
+.tooltip { position: absolute; top: 56px; left: 68px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); pointer-events: none; color: var(--muted); }
+.tooltip strong { color: var(--text); font-size: 0.85rem; margin-bottom: 2px; }
+.tooltip b { color: var(--text); }
+.chart-note { margin: 8px 0 0; font-size: 0.85rem; color: var(--accent); }
