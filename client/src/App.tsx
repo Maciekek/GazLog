@@ -4,6 +4,7 @@ import Landing from './Landing'
 import Privacy from './Privacy'
 import Terms from './Terms'
 import ConfirmDeleteModal from './ConfirmDeleteModal'
+import UserMenu from './UserMenu'
 
 const pln = (n: number) => n.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })
 const num = (n: number, d = 1) => n.toLocaleString('pl-PL', { maximumFractionDigits: d })
@@ -118,13 +119,8 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
       <header>
         <h1 onClick={goHome} style={{ cursor: 'pointer' }}>⛽ GazLog</h1>
         <div className="user">
-          {me.picture && <img src={me.picture} alt="" referrerPolicy="no-referrer" title={me.email} />}
-          {view === 'home' ? (
-            <button className="secondary small" onClick={() => setView('settings')}>Ustawienia</button>
-          ) : (
-            <button className="secondary small" onClick={goHome}>← Wróć</button>
-          )}
-          <button className="secondary small" onClick={onLogout}>Wyloguj</button>
+          {view !== 'home' && <button className="secondary small" onClick={goHome}>← Wróć</button>}
+          <UserMenu me={me} onSettings={() => { setView('settings'); window.scrollTo({ top: 0 }) }} onLogout={onLogout} />
         </div>
       </header>
 

@@ -105,8 +105,6 @@ button:disabled { opacity: 0.6; cursor: default; }
 
 /* ---- user chip ---- */
 .user { display: flex; align-items: center; gap: 8px; }
-.user img { width: 28px; height: 28px; border-radius: 50%; }
-.user .name { font-size: 0.85rem; color: var(--muted); }
 .fab { width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
 
 /* ---- privacy ---- */
@@ -134,3 +132,16 @@ button:disabled { opacity: 0.6; cursor: default; }
 .modal .actions { display: flex; gap: 8px; }
 button.danger.solid { background: var(--danger); color: #fff; border: none; }
 button.danger.solid:disabled { opacity: 0.45; }
+
+/* ---- user menu ---- */
+.user-menu { position: relative; }
+.avatar-btn { padding: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: grid; place-items: center; overflow: hidden; cursor: pointer; }
+.avatar-btn:hover, .avatar-btn[aria-expanded="true"] { border-color: var(--accent); }
+.avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar-fallback { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 220px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); padding: 6px; z-index: 50; display: flex; flex-direction: column; }
+.menu-header { padding: 8px 10px 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.menu-name { font-weight: 600; font-size: 0.95rem; }
+.menu-email { font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+.menu button[role="menuitem"] { background: transparent; color: var(--text); text-align: left; padding: 9px 10px; border-radius: 8px; font-size: 0.95rem; }
+.menu button[role="menuitem"]:hover { background: var(--bg); }
