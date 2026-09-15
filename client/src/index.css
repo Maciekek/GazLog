@@ -37,6 +37,7 @@ header h1 { margin: 0; font-size: 1.5rem; }
 .stat .sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 form.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
+label > input { margin-top: auto; }
 input { padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 1rem; }
 input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }

@@ -254,7 +254,7 @@ function SettingsCard({ settings, onSave, onDelete }: { settings: Settings; onSa
     <div className="card">
       <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Ustawienia</h2>
       <form className="grid" onSubmit={submit}>
-        <label>Spalanie na benzynie (l/100km)<input type="number" inputMode="decimal" step="any" min="0" value={pc} onChange={(e) => setPc(e.target.value)} required /></label>
+        <label>Spalanie na benzynie (l/100 km)<input type="number" inputMode="decimal" step="any" min="0" value={pc} onChange={(e) => setPc(e.target.value)} required /></label>
         <label>Koszt instalacji LPG (zł)<input type="number" inputMode="decimal" step="any" min="0" value={ic} onChange={(e) => setIc(e.target.value)} /></label>
         <div className="preview">Spalanie benzyny służy do wyliczenia, ile kosztowałby ten sam dystans na benzynie.</div>
         <div className="actions"><button type="submit" disabled={busy}>Zapisz</button></div>
