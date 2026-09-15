@@ -6,6 +6,7 @@ import Terms from './Terms'
 import ConfirmDeleteModal from './ConfirmDeleteModal'
 import UserMenu from './UserMenu'
 import Charts from './Charts'
+import { usePath, navigate, APP_PATHS } from './router'
 import GuidesIndex from './guides/GuidesIndex'
 import InstallCost from './guides/InstallCost'
 import LpgVsPetrol from './guides/LpgVsPetrol'
@@ -51,9 +52,11 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
-  const [editId, setEditId] = useState<number | null>(null)
-  const [view, setView] = useState<'home' | 'form' | 'settings'>('home')
-  const goHome = () => { setView('home'); setEditId(null); setError(null); window.scrollTo({ top: 0 }) }
+  const path = usePath()
+  const editMatch = path.match(/^\/edytuj\/(\d+)$/)
+  const view: 'home' | 'form' | 'settings' = path === '/nowe' || editMatch ? 'form' : path === '/ustawienia' ? 'settings' : 'home'
+  const editId = editMatch ? Number(editMatch[1]) : null
+  const goHome = () => { setError(null); navigate('/') }
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,6 +73,19 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
   }
 
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Populate the form whenever the route changes to /nowe or /edytuj/:id (including back/forward).
+  useEffect(() => {
+    if (view !== 'form') return
+    if (editId === null) { setForm(emptyForm(items[0])); return }
+    const f = items.find((x) => x.id === editId)
+    if (f) setForm({
+      date: f.date, distance_km: String(f.distance_km), lpg_liters: String(f.lpg_liters),
+      lpg_price: String(f.lpg_price), petrol_price: String(f.petrol_price), note: f.note ?? '',
+    })
+    else if (items.length) navigate('/', { replace: true })
+    setError(null)
+  }, [path, items]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const preview = useMemo(() => {
     const inp = toInput(form)
@@ -89,7 +105,6 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
       else await api.updateFillup(editId, inp)
       const f = await api.fillups()
       setItems(f.items); setSummary(f.summary)
-      setForm(emptyForm(f.items[0]))
       goHome()
     } catch (e) {
       setError(String(e))
@@ -98,23 +113,8 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
     }
   }
 
-  const startEdit = (f: Fillup) => {
-    setEditId(f.id)
-    setForm({
-      date: f.date, distance_km: String(f.distance_km), lpg_liters: String(f.lpg_liters),
-      lpg_price: String(f.lpg_price), petrol_price: String(f.petrol_price), note: f.note ?? '',
-    })
-    setView('form')
-    window.scrollTo({ top: 0 })
-  }
-
-  const startAdd = () => {
-    setEditId(null)
-    setForm(emptyForm(items[0]))
-    setError(null)
-    setView('form')
-    window.scrollTo({ top: 0 })
-  }
+  const startEdit = (f: Fillup) => navigate(`/edytuj/${f.id}`)
+  const startAdd = () => navigate('/nowe')
 
   const remove = async (f: Fillup) => {
     if (!confirm(`Usunąć tankowanie z ${f.date}?`)) return
@@ -131,7 +131,7 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
         <h1 onClick={goHome} style={{ cursor: 'pointer' }}>⛽ GazLog</h1>
         <div className="user">
           {view !== 'home' && <button className="secondary small" onClick={goHome}>← Wróć</button>}
-          <UserMenu me={me} onSettings={() => { setView('settings'); window.scrollTo({ top: 0 }) }} onLogout={onLogout} />
+          <UserMenu me={me} onSettings={() => navigate('/ustawienia')} onLogout={onLogout} />
         </div>
       </header>
 
@@ -203,6 +203,7 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
 }
 
 export default function App() {
+  const path = usePath()
   const [state, setState] = useState<{ loading: boolean; me: Me | null; loginEnabled: boolean }>({ loading: true, me: null, loginEnabled: true })
   const error = new URLSearchParams(window.location.search).get('error')
 
@@ -210,7 +211,6 @@ export default function App() {
     fetchMe().then((r) => setState({ loading: false, me: r.user, loginEnabled: r.loginEnabled }))
   }, [])
 
-  const path = window.location.pathname.replace(/\/+$/, '') || '/'
   if (path === '/prywatnosc') return <Privacy />
   if (path === '/regulamin') return <Terms />
   if (path === '/poradnik') return <GuidesIndex />
@@ -218,9 +218,12 @@ export default function App() {
     const Guide = GUIDE_ROUTES[path.slice('/poradnik/'.length)]
     return Guide ? <Guide /> : <NotFound />
   }
-  if (path !== '/') return <NotFound />
+  if (path !== '/' && !APP_PATHS.test(path)) return <NotFound />
   if (state.loading) return null
-  if (!state.me) return <Landing loginEnabled={state.loginEnabled} error={error} />
+  if (!state.me) {
+    if (path !== '/') { navigate('/', { replace: true }); return null }
+    return <Landing loginEnabled={state.loginEnabled} error={error} />
+  }
   return (
     <Tracker
       me={state.me}

@@ -93,6 +93,8 @@ app.use("/api", api);
 
 // SEO: robots.txt and sitemap.xml built from BASE_URL so the domain is not baked into the image.
 const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3001").replace(/\/$/, "");
+// Logged-in app routes: served with 200 but kept out of the sitemap.
+const APP_PATHS = /^\/(nowe|ustawienia|edytuj\/\d+)$/;
 const PUBLIC_PAGES = [
   "/",
   "/poradnik",
@@ -130,7 +132,8 @@ if (fs.existsSync(clientDist)) {
   } }));
   app.get("*", (req, res) => {
     if (req.path.startsWith("/api/")) return res.status(404).json({ error: "not found" });
-    const known = PUBLIC_PAGES.includes(req.path.replace(/\/+$/, "") || "/");
+    const p = req.path.replace(/\/+$/, "") || "/";
+    const known = PUBLIC_PAGES.includes(p) || APP_PATHS.test(p);
     res.status(known ? 200 : 404).type("html").setHeader("Cache-Control", "no-cache").send(indexHtml);
   });
 }
