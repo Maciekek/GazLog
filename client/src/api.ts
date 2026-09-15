@@ -51,9 +51,27 @@ export const api = {
     req<Fillup>(`/api/fillups/${id}`, { method: 'PUT', body: JSON.stringify(f) }),
   deleteFillup: (id: number) => req<void>(`/api/fillups/${id}`, { method: 'DELETE' }),
   deleteAccount: () => req<void>('/api/account', { method: 'DELETE' }),
+  adminUsers: () => req<{ users: AdminUser[] }>('/api/admin/users'),
 };
 
-export type Me = { id: number; email: string; name: string | null; picture: string | null };
+export type Role = 'user' | 'admin';
+export type Me = { id: number; email: string; name: string | null; picture: string | null; role: Role };
+
+export type AdminUser = {
+  id: number;
+  email: string;
+  name: string | null;
+  picture: string | null;
+  role: Role;
+  created_at: string;
+  last_login_at: string | null;
+  fillups: number;
+  km: number;
+  liters: number;
+  lpg_cost: number;
+  last_fillup: string | null;
+  active_sessions: number;
+};
 
 export async function fetchMe(): Promise<{ user: Me | null; loginEnabled: boolean }> {
   const r = await fetch('/api/auth/me');

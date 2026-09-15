@@ -9,6 +9,7 @@ import Tracker from './pages/Tracker'
 import HomeView from './pages/HomeView'
 import FillupFormView from './pages/FillupFormView'
 import SettingsView from './pages/SettingsView'
+import AdminView from './pages/AdminView'
 import GuidesIndex from './guides/GuidesIndex'
 import InstallCost from './guides/InstallCost'
 import LpgVsPetrol from './guides/LpgVsPetrol'
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="new" element={<FillupFormView />} />
           <Route path="edit/:id" element={<FillupFormView />} />
           <Route path="settings" element={<SettingsView onLogout={onLogout} />} />
+          <Route path="admin" element={auth.me?.role === 'admin' ? <AdminView /> : <Navigate to="/" replace />} />
         </Route>
       </Route>
 

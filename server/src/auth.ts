@@ -80,6 +80,12 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).json({ error: "unauthorized" });
+  if (req.user.role !== "admin") return res.status(403).json({ error: "forbidden" });
+  next();
+}
+
 export const authRouter: Router = express.Router();
 
 authRouter.get("/google", (_req, res) => {
@@ -161,6 +167,6 @@ authRouter.post("/logout", (req, res) => {
 
 authRouter.get("/me", (req, res) => {
   if (!req.user) return res.status(401).json({ error: "unauthorized", loginEnabled: authConfigured });
-  const { id, email, name, picture } = req.user;
-  res.json({ id, email, name, picture });
+  const { id, email, name, picture, role } = req.user;
+  res.json({ id, email, name, picture, role });
 });

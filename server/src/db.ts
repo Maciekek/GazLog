@@ -46,6 +46,19 @@ db.exec(`
   );
 `);
 
+// Roles. Admins are the accounts listed in ADMIN_EMAILS (comma-separated); default: the owner.
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "maciekek@gmail.com")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+const userCols = (db.prepare("PRAGMA table_info(users)").all() as { name: string }[]).map((c) => c.name);
+if (!userCols.includes("role")) db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
+if (!userCols.includes("last_login_at")) db.exec("ALTER TABLE users ADD COLUMN last_login_at TEXT");
+// Keep roles in sync with the allowlist on every start (grant and revoke).
+db.prepare(`UPDATE users SET role = CASE WHEN lower(email) IN (${ADMIN_EMAILS.map(() => "?").join(",") || "''"}) THEN 'admin' ELSE 'user' END`).run(...ADMIN_EMAILS);
+
+export const isAdminEmail = (email: string) => ADMIN_EMAILS.includes(email.toLowerCase());
+
 // Migration from pre-auth schema: fillups without user_id column.
 const cols = (db.prepare("PRAGMA table_info(fillups)").all() as { name: string }[]).map((c) => c.name);
 if (!cols.includes("user_id")) {
@@ -67,13 +80,25 @@ if (!cols.includes("user_id")) {
 }
 db.exec("CREATE INDEX IF NOT EXISTS fillups_user_date ON fillups(user_id, date DESC, id DESC)");
 
-export type User = { id: number; google_sub: string; email: string; name: string | null; picture: string | null };
+export type Role = "user" | "admin";
+export type User = {
+  id: number;
+  google_sub: string;
+  email: string;
+  name: string | null;
+  picture: string | null;
+  role: Role;
+  created_at: string;
+  last_login_at: string | null;
+};
 
 export function upsertUser(u: { sub: string; email: string; name?: string; picture?: string }): User {
+  const role: Role = isAdminEmail(u.email) ? "admin" : "user";
   db.prepare(
-    `INSERT INTO users (google_sub, email, name, picture) VALUES (?, ?, ?, ?)
-     ON CONFLICT(google_sub) DO UPDATE SET email = excluded.email, name = excluded.name, picture = excluded.picture`
-  ).run(u.sub, u.email, u.name ?? null, u.picture ?? null);
+    `INSERT INTO users (google_sub, email, name, picture, role, last_login_at) VALUES (?, ?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(google_sub) DO UPDATE SET email = excluded.email, name = excluded.name, picture = excluded.picture,
+       role = excluded.role, last_login_at = datetime('now')`
+  ).run(u.sub, u.email, u.name ?? null, u.picture ?? null, role);
   const user = db.prepare("SELECT * FROM users WHERE google_sub = ?").get(u.sub) as User;
   adoptLegacyRows(user.id);
   return user;
@@ -158,3 +183,35 @@ export type Fillup = {
   petrol_price: number;
   note: string | null;
 };
+
+export type AdminUserRow = {
+  id: number;
+  email: string;
+  name: string | null;
+  picture: string | null;
+  role: Role;
+  created_at: string;
+  last_login_at: string | null;
+  fillups: number;
+  km: number;
+  liters: number;
+  lpg_cost: number;
+  last_fillup: string | null;
+  active_sessions: number;
+};
+
+export function listUsersForAdmin(): AdminUserRow[] {
+  return db
+    .prepare(
+      `SELECT u.id, u.email, u.name, u.picture, u.role, u.created_at, u.last_login_at,
+              COUNT(f.id) AS fillups,
+              COALESCE(SUM(f.distance_km), 0) AS km,
+              COALESCE(SUM(f.lpg_liters), 0) AS liters,
+              COALESCE(SUM(f.lpg_liters * f.lpg_price), 0) AS lpg_cost,
+              MAX(f.date) AS last_fillup,
+              (SELECT COUNT(*) FROM sessions s WHERE s.user_id = u.id AND s.expires_at > datetime('now')) AS active_sessions
+       FROM users u LEFT JOIN fillups f ON f.user_id = u.id
+       GROUP BY u.id ORDER BY u.created_at DESC`
+    )
+    .all() as AdminUserRow[];
+}

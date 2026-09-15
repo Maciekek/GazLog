@@ -10,7 +10,7 @@ LPG installation cost.
 
 - `client/` – Vite + React + TypeScript + react-router
   - `pages/` routed views (landing, tracker layout + home/form/settings, legal, 404), `components/` UI pieces,
-    `hooks/useTrackerData.ts` server state, `guides/` articles, `App.tsx` route table + auth gate
+    `hooks/useTrackerData.ts` server state, `guides/` articles, `App.tsx` route table + auth gate. `/admin` (role `admin`) lists users.
 - `server/` – Node + Express + better-sqlite3 (database at `server/data/gazlog.db`, or `/data` in Docker)
 - Google sign-in (server-side OAuth 2.0 authorization code flow, sessions in SQLite)
 
@@ -47,6 +47,7 @@ Environment variables (see `.env.example`):
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | – | OAuth credentials |
 | `BASE_URL` | `http://localhost:3001` | Public URL; used for the redirect URI and `Secure` cookies when https |
 | `ALLOWED_EMAILS` | empty (anyone) | Comma-separated allowlist of Google e-mails |
+| `ADMIN_EMAILS` | `maciekek@gmail.com` | Accounts that get the `admin` role; roles are re-synced from this list on every start |
 | `VITE_CONTACT_EMAIL` | empty | Contact address shown on the privacy/terms pages (build-time) |
 | `PORT` | `3001` | HTTP port |
 | `DATA_DIR` | `server/data` | Where `gazlog.db` lives |
@@ -113,3 +114,4 @@ All endpoints except `/api/auth/*` require a session (cookie `gazlog_session`).
 - `GET /api/fillups` – `{ items, summary }`
 - `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id`
 - `DELETE /api/account` – delete the user and all their data
+- `GET /api/admin/users` – admin only: accounts with fill-up counts, km, spend, last login

@@ -2,9 +2,9 @@ import express from "express";
 import path from "node:path";
 import fs from "node:fs";
 import { z } from "zod";
-import { db, getSettings, saveSettings, type Fillup } from "./db.js";
+import { db, getSettings, saveSettings, listUsersForAdmin, type Fillup } from "./db.js";
 import { enrich, summary } from "./calc.js";
-import { authRouter, loadUser, requireUser } from "./auth.js";
+import { authRouter, loadUser, requireUser, requireAdmin } from "./auth.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -91,10 +91,16 @@ api.delete("/account", (req, res) => {
 
 app.use("/api", api);
 
+// Admin: read-only overview of accounts. Guarded by role, not by e-mail on the client.
+const admin = express.Router();
+admin.use(requireAdmin);
+admin.get("/users", (_req, res) => res.json({ users: listUsersForAdmin() }));
+app.use("/api/admin", admin);
+
 // SEO: robots.txt and sitemap.xml built from BASE_URL so the domain is not baked into the image.
 const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3001").replace(/\/$/, "");
 // Logged-in app routes: served with 200 but kept out of the sitemap.
-const APP_PATHS = /^\/(new|settings|edit\/\d+)$/;
+const APP_PATHS = /^\/(new|settings|admin|edit\/\d+)$/;
 const PUBLIC_PAGES = [
   "/",
   "/guides",

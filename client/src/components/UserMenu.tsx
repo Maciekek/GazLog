@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Me } from '../api'
 
-export default function UserMenu({ me, onSettings, onLogout }: { me: Me; onSettings: () => void; onLogout: () => void }) {
+type Props = { me: Me; onSettings: () => void; onAdmin?: () => void; onLogout: () => void }
+
+export default function UserMenu({ me, onSettings, onAdmin, onLogout }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -35,6 +37,9 @@ export default function UserMenu({ me, onSettings, onLogout }: { me: Me; onSetti
             {me.name && <div className="menu-email">{me.email}</div>}
           </div>
           <button type="button" role="menuitem" onClick={() => { setOpen(false); onSettings() }}>⚙️ Ustawienia</button>
+          {me.role === 'admin' && onAdmin && (
+            <button type="button" role="menuitem" onClick={() => { setOpen(false); onAdmin() }}>🛠️ Admin</button>
+          )}
           <button type="button" role="menuitem" onClick={() => { setOpen(false); onLogout() }}>↪ Wyloguj</button>
         </div>
       )}
