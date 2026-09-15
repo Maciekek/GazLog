@@ -1,6 +1,6 @@
 import type { Fillup, Settings } from "./db.js";
 
-export type FillupWithCalc = Fillup & {
+export type FillupWithCalc = Omit<Fillup, "user_id"> & {
   lpg_cost: number;
   petrol_cost: number;
   saved: number;
@@ -10,8 +10,9 @@ export type FillupWithCalc = Fillup & {
 export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   const lpg_cost = f.lpg_liters * f.lpg_price;
   const petrol_cost = (f.distance_km / 100) * s.petrolConsumption * f.petrol_price;
+  const { user_id: _uid, ...rest } = f;
   return {
-    ...f,
+    ...rest,
     lpg_cost: round(lpg_cost),
     petrol_cost: round(petrol_cost),
     saved: round(petrol_cost - lpg_cost),

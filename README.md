@@ -10,9 +10,18 @@ Opcjonalnie śledzi zwrot kosztu instalacji.
 - `client/` – Vite + React + TypeScript
 - `server/` – Node + Express + better-sqlite3 (baza w `server/data/gazlog.db`)
 
+## Logowanie Google
+
+1. Google Cloud Console → APIs & Services → Credentials → Create OAuth client ID (Web application).
+2. Authorized redirect URI: `<BASE_URL>/api/auth/google/callback`, np. `http://localhost:3001/api/auth/google/callback`.
+3. Skopiuj `.env.example` do `.env` i wpisz `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+4. Opcjonalnie `ALLOWED_EMAILS=ty@gmail.com` – tylko te konta mogą się zalogować.
+
+Bez skonfigurowanego OAuth aplikacja pokazuje landing bez przycisku logowania.
+
 ## Uruchomienie
 
-Wymaga Node 22 (`nvm use`).
+Wymaga Node 22 (`nvm use`). W dev ustaw w `.env` `APP_URL=http://localhost:5173`.
 
 ```bash
 npm install
@@ -44,6 +53,9 @@ docker cp gazlog:/data/gazlog.db ./gazlog-backup.db
 
 ## API
 
+Wszystkie endpointy poza `/api/auth/*` wymagają sesji (cookie `gazlog_session`).
+
+- `GET /api/auth/google` – start logowania, `GET /api/auth/me`, `POST /api/auth/logout`
 - `GET/PUT /api/settings` – `{ petrolConsumption, installCost }`
 - `GET /api/fillups` – `{ items, summary }`
 - `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id`

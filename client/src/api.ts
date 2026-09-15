@@ -51,3 +51,14 @@ export const api = {
     req<Fillup>(`/api/fillups/${id}`, { method: 'PUT', body: JSON.stringify(f) }),
   deleteFillup: (id: number) => req<void>(`/api/fillups/${id}`, { method: 'DELETE' }),
 };
+
+export type Me = { id: number; email: string; name: string | null; picture: string | null };
+
+export async function fetchMe(): Promise<{ user: Me | null; loginEnabled: boolean }> {
+  const r = await fetch('/api/auth/me');
+  if (r.ok) return { user: await r.json(), loginEnabled: true };
+  const body = await r.json().catch(() => ({}));
+  return { user: null, loginEnabled: body.loginEnabled !== false };
+}
+
+export const logout = () => fetch('/api/auth/logout', { method: 'POST' });

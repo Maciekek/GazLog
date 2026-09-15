@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { api, type Fillup, type FillupInput, type Settings, type Summary } from './api'
+import { api, fetchMe, logout, type Fillup, type FillupInput, type Me, type Settings, type Summary } from './api'
+import Landing from './Landing'
 
 const pln = (n: number) => n.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })
 const num = (n: number, d = 1) => n.toLocaleString('pl-PL', { maximumFractionDigits: d })
@@ -30,13 +31,14 @@ const toInput = (f: FormState): FillupInput | null => {
   return ok && f.date ? out : null
 }
 
-export default function App() {
+function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [items, setItems] = useState<Fillup[]>([])
   const [summary, setSummary] = useState<Summary | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
   const [editId, setEditId] = useState<number | null>(null)
-  const [showSettings, setShowSettings] = useState(false)
+  const [view, setView] = useState<'home' | 'form' | 'settings'>('home')
+  const goHome = () => { setView('home'); setEditId(null); setError(null); window.scrollTo({ top: 0 }) }
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,10 +72,10 @@ export default function App() {
     try {
       if (editId === null) await api.addFillup(inp)
       else await api.updateFillup(editId, inp)
-      setEditId(null)
       const f = await api.fillups()
       setItems(f.items); setSummary(f.summary)
       setForm(emptyForm(f.items[0]))
+      goHome()
     } catch (e) {
       setError(String(e))
     } finally {
@@ -87,7 +89,16 @@ export default function App() {
       date: f.date, distance_km: String(f.distance_km), lpg_liters: String(f.lpg_liters),
       lpg_price: String(f.lpg_price), petrol_price: String(f.petrol_price), note: f.note ?? '',
     })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setView('form')
+    window.scrollTo({ top: 0 })
+  }
+
+  const startAdd = () => {
+    setEditId(null)
+    setForm(emptyForm(items[0]))
+    setError(null)
+    setView('form')
+    window.scrollTo({ top: 0 })
   }
 
   const remove = async (f: Fillup) => {
@@ -102,18 +113,56 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>⛽ GazLog</h1>
-        <button className="secondary small" onClick={() => setShowSettings((v) => !v)}>
-          {showSettings ? 'Zamknij' : 'Ustawienia'}
-        </button>
+        <h1 onClick={goHome} style={{ cursor: 'pointer' }}>⛽ GazLog</h1>
+        <div className="user">
+          {me.picture && <img src={me.picture} alt="" referrerPolicy="no-referrer" title={me.email} />}
+          {view === 'home' ? (
+            <button className="secondary small" onClick={() => setView('settings')}>Ustawienia</button>
+          ) : (
+            <button className="secondary small" onClick={goHome}>← Wróć</button>
+          )}
+          <button className="secondary small" onClick={onLogout}>Wyloguj</button>
+        </div>
       </header>
 
-      {showSettings && settings && (
-        <SettingsCard settings={settings} onSave={async (s) => { setSettings(await api.saveSettings(s)); await load(); setShowSettings(false) }} />
+      {view === 'settings' && settings && (
+        <SettingsCard settings={settings} onSave={async (s) => { setSettings(await api.saveSettings(s)); await load(); goHome() }} />
       )}
 
-      {summary && <SummaryCard s={summary} />}
+      {view === 'home' && (
+        <>
+          {summary && <SummaryCard s={summary} />}
+          <button className="fab" onClick={startAdd}>+ Nowe tankowanie</button>
+          <div className="card">
+            <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Historia</h2>
+            {items.length === 0 ? (
+              <div className="empty">Brak tankowań. Kliknij „Nowe tankowanie”.</div>
+            ) : (
+              <div className="list">
+                {items.map((f) => (
+                  <div className="row" key={f.id}>
+                    <div className="main">
+                      <span className="date">{f.date}</span>
+                      <span>{num(f.distance_km, 0)} km</span>
+                      <span>{num(f.lpg_liters)} l × {num(f.lpg_price, 2)} zł = {pln(f.lpg_cost)}</span>
+                      <span className="muted">benzyna: {pln(f.petrol_cost)} @ {num(f.petrol_price, 2)} zł/l</span>
+                      <span className="muted">{num(f.lpg_per_100)} l/100km</span>
+                      <span className={'saved' + (f.saved < 0 ? ' neg' : '')}>{f.saved >= 0 ? '+' : ''}{pln(f.saved)}</span>
+                      {f.note && <span className="muted">„{f.note}”</span>}
+                    </div>
+                    <div className="btns">
+                      <button className="secondary small" onClick={() => startEdit(f)}>Edytuj</button>
+                      <button className="danger small" onClick={() => remove(f)}>Usuń</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
+      {view === 'form' && (
       <div className="card">
         <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>{editId === null ? 'Nowe tankowanie' : 'Edycja tankowania'}</h2>
         <form className="grid" onSubmit={submit}>
@@ -132,40 +181,30 @@ export default function App() {
           {error && <div className="error" style={{ gridColumn: '1 / -1' }}>{error}</div>}
           <div className="actions">
             <button type="submit" disabled={busy}>{editId === null ? 'Dodaj' : 'Zapisz'}</button>
-            {editId !== null && (
-              <button type="button" className="secondary" onClick={() => { setEditId(null); setForm(emptyForm(items[0])) }}>Anuluj</button>
-            )}
+            <button type="button" className="secondary" onClick={goHome}>Anuluj</button>
           </div>
         </form>
       </div>
-
-      <div className="card">
-        <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Historia</h2>
-        {items.length === 0 ? (
-          <div className="empty">Brak tankowań. Dodaj pierwsze powyżej.</div>
-        ) : (
-          <div className="list">
-            {items.map((f) => (
-              <div className="row" key={f.id}>
-                <div className="main">
-                  <span className="date">{f.date}</span>
-                  <span>{num(f.distance_km, 0)} km</span>
-                  <span>{num(f.lpg_liters)} l × {num(f.lpg_price, 2)} zł = {pln(f.lpg_cost)}</span>
-                  <span className="muted">benzyna: {pln(f.petrol_cost)} @ {num(f.petrol_price, 2)} zł/l</span>
-                  <span className="muted">{num(f.lpg_per_100)} l/100km</span>
-                  <span className={'saved' + (f.saved < 0 ? ' neg' : '')}>{f.saved >= 0 ? '+' : ''}{pln(f.saved)}</span>
-                  {f.note && <span className="muted">„{f.note}”</span>}
-                </div>
-                <div className="btns">
-                  <button className="secondary small" onClick={() => startEdit(f)}>Edytuj</button>
-                  <button className="danger small" onClick={() => remove(f)}>Usuń</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
+  )
+}
+
+export default function App() {
+  const [state, setState] = useState<{ loading: boolean; me: Me | null; loginEnabled: boolean }>({ loading: true, me: null, loginEnabled: true })
+  const error = new URLSearchParams(window.location.search).get('error')
+
+  useEffect(() => {
+    fetchMe().then((r) => setState({ loading: false, me: r.user, loginEnabled: r.loginEnabled }))
+  }, [])
+
+  if (state.loading) return null
+  if (!state.me) return <Landing loginEnabled={state.loginEnabled} error={error} />
+  return (
+    <Tracker
+      me={state.me}
+      onLogout={async () => { await logout(); setState((s) => ({ ...s, me: null })) }}
+    />
   )
 }
 
