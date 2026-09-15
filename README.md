@@ -21,7 +21,7 @@ Bez skonfigurowanego OAuth aplikacja pokazuje landing bez przycisku logowania.
 
 ## Uruchomienie
 
-Wymaga Node 22 (`nvm use`). W dev ustaw w `.env` `APP_URL=http://localhost:5173`.
+Wymaga Node 22 (`nvm use`).
 
 ```bash
 npm install
