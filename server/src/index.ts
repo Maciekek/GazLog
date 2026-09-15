@@ -91,11 +91,39 @@ api.delete("/account", (req, res) => {
 
 app.use("/api", api);
 
-// Serve built client in production
+// SEO: robots.txt and sitemap.xml built from BASE_URL so the domain is not baked into the image.
+const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3001").replace(/\/$/, "");
+const PUBLIC_PAGES = ["/", "/prywatnosc", "/regulamin"];
+
+app.get("/robots.txt", (_req, res) => {
+  res.type("text/plain").send(
+    ["User-agent: *", "Allow: /", "Disallow: /api/", "", `Sitemap: ${BASE_URL}/sitemap.xml`, ""].join("\n")
+  );
+});
+
+app.get("/sitemap.xml", (_req, res) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = PUBLIC_PAGES.map(
+    (p) =>
+      `  <url><loc>${BASE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>${p === "/" ? "weekly" : "yearly"}</changefreq><priority>${p === "/" ? "1.0" : "0.3"}</priority></url>`
+  );
+  res
+    .type("application/xml")
+    .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`);
+});
+
+// Serve built client in production. index.html is templated once with the public origin
+// (canonical, Open Graph, JSON-LD) and served for every non-API route.
 const clientDist = path.resolve(process.cwd(), "../client/dist");
 if (fs.existsSync(clientDist)) {
-  app.use(express.static(clientDist));
-  app.get("*", (_req, res) => res.sendFile(path.join(clientDist, "index.html")));
+  const indexHtml = fs.readFileSync(path.join(clientDist, "index.html"), "utf8").replaceAll("%GAZLOG_ORIGIN%", BASE_URL);
+  app.use(express.static(clientDist, { index: false, maxAge: "1y", immutable: true, setHeaders: (res, filePath) => {
+    if (!/\/assets\//.test(filePath)) res.setHeader("Cache-Control", "public, max-age=3600");
+  } }));
+  app.get("*", (req, res) => {
+    if (req.path.startsWith("/api/")) return res.status(404).json({ error: "not found" });
+    res.type("html").setHeader("Cache-Control", "no-cache").send(indexHtml);
+  });
 }
 
 const port = Number(process.env.PORT ?? 3001);

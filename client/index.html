@@ -2,9 +2,57 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛽</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GazLog</title>
+    <title>GazLog – ile oszczędzasz na LPG? Kalkulator i dziennik tankowań</title>
+    <meta name="description" content="Zapisuj tankowania LPG i zobacz, ile realnie oszczędzasz względem benzyny. GazLog liczy koszt gazu, koszt benzyny za ten sam dystans i zwrot instalacji LPG. Darmowo, bez reklam." />
+    <meta name="keywords" content="LPG, oszczędności LPG, kalkulator LPG, instalacja gazowa zwrot, spalanie LPG, dziennik tankowań, autogaz, LPG vs benzyna" />
+    <meta name="author" content="GazLog" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0e7c5b" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href="%GAZLOG_ORIGIN%/" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GazLog" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:url" content="%GAZLOG_ORIGIN%/" />
+    <meta property="og:title" content="GazLog – ile naprawdę oszczędzasz na gazie?" />
+    <meta property="og:description" content="Jedno tankowanie, cztery liczby, zero arkuszy. GazLog liczy oszczędności LPG względem benzyny i pokazuje, kiedy instalacja się spłaci." />
+    <meta property="og:image" content="%GAZLOG_ORIGIN%/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="GazLog – kalkulator oszczędności LPG" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GazLog – ile naprawdę oszczędzasz na gazie?" />
+    <meta name="twitter:description" content="Dziennik tankowań LPG, który liczy oszczędności względem benzyny i zwrot instalacji." />
+    <meta name="twitter:image" content="%GAZLOG_ORIGIN%/og.png" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "GazLog",
+      "url": "%GAZLOG_ORIGIN%/",
+      "description": "Dziennik tankowań LPG liczący oszczędności względem benzyny i zwrot kosztu instalacji gazowej.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+      "featureList": [
+        "Dziennik tankowań LPG",
+        "Porównanie kosztu LPG i benzyny",
+        "Średnie spalanie LPG l/100 km",
+        "Śledzenie zwrotu kosztu instalacji LPG"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

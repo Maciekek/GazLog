@@ -1,0 +1,6 @@
+/* TEAM */
+GazLog – open source, https://github.com/Maciekek/GazLog
+
+/* SITE */
+Language: Polski
+Stack: React, TypeScript, Vite, Node, Express, SQLite

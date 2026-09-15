@@ -73,6 +73,15 @@ Backup:
 docker cp gazlog:/data/gazlog.db ./gazlog-backup.db
 ```
 
+## SEO / marketing assets
+
+- `client/index.html`: title, meta description, keywords, canonical, Open Graph, Twitter card, JSON-LD (`WebApplication`), theme-color.
+- `client/public/`: `favicon.svg` + PNG icons, `apple-touch-icon.png`, `manifest.webmanifest` (installable PWA shell), `og.png` (1200×630 share image), `humans.txt`.
+- Server generates `/robots.txt` and `/sitemap.xml` from `BASE_URL`, and templates `%GAZLOG_ORIGIN%` in `index.html` with `BASE_URL` at startup, so the public domain is not baked into the Docker image.
+- Hashed assets are served with `Cache-Control: immutable`; `index.html` with `no-cache`.
+
+After going live: submit `https://<DOMAIN>/sitemap.xml` in Google Search Console and check the share preview at https://developers.facebook.com/tools/debug/.
+
 ## Legal pages
 
 `/prywatnosc` (privacy policy) and `/regulamin` (terms), in Polish. Users can delete their account
