@@ -82,6 +82,13 @@ api.delete("/fillups/:id", (req, res) => {
   res.status(204).end();
 });
 
+// Delete the current user and everything attached (fillups, settings, sessions via ON DELETE CASCADE).
+api.delete("/account", (req, res) => {
+  db.prepare("DELETE FROM users WHERE id = ?").run(req.user!.id);
+  res.append("Set-Cookie", "gazlog_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  res.status(204).end();
+});
+
 app.use("/api", api);
 
 // Serve built client in production

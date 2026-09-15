@@ -51,11 +51,18 @@ Backup bazy:
 docker cp gazlog:/data/gazlog.db ./gazlog-backup.db
 ```
 
+## Strony prawne
+
+`/prywatnosc` (polityka prywatności) i `/regulamin`. Adres kontaktowy podaj w `.env` jako `VITE_CONTACT_EMAIL`
+(wbudowywany w klienta przy buildzie, w Dockerze przekazywany jako build arg). Użytkownik może usunąć konto
+i wszystkie dane w Ustawieniach (`DELETE /api/account`).
+
 ## API
 
 Wszystkie endpointy poza `/api/auth/*` wymagają sesji (cookie `gazlog_session`).
 
 - `GET /api/auth/google` – start logowania, `GET /api/auth/me`, `POST /api/auth/logout`
+- `DELETE /api/account` – usuwa konto i wszystkie dane użytkownika
 - `GET/PUT /api/settings` – `{ petrolConsumption, installCost }`
 - `GET /api/fillups` – `{ items, summary }`
 - `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id`

@@ -1,6 +1,9 @@
 services:
   gazlog:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
     image: gazlog
     container_name: gazlog
     restart: unless-stopped

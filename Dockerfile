@@ -7,6 +7,8 @@ COPY client/package.json client/
 COPY server/package.json server/
 RUN npm ci
 
+ARG VITE_CONTACT_EMAIL=
+ENV VITE_CONTACT_EMAIL=$VITE_CONTACT_EMAIL
 COPY client client
 COPY server server
 RUN npm run build

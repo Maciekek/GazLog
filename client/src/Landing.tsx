@@ -30,7 +30,7 @@ export default function Landing({ loginEnabled, error }: { loginEnabled: boolean
           ) : (
             <div className="landing-error">Logowanie nie jest skonfigurowane (brak GOOGLE_CLIENT_ID).</div>
           )}
-          <p className="fine">Bez rejestracji, bez hasła. Tylko konto Google.</p>
+          <p className="fine">Bez rejestracji, bez hasła. Tylko konto Google. Logując się akceptujesz <a href="/regulamin">regulamin</a> i <a href="/prywatnosc">politykę prywatności</a>.</p>
         </div>
 
         <div className="hero-card" aria-hidden="true">
@@ -72,7 +72,7 @@ export default function Landing({ loginEnabled, error }: { loginEnabled: boolean
       </section>
 
       <footer className="landing-footer">
-        GazLog · <a href="https://github.com/Maciekek/GazLog">GitHub</a>
+        GazLog · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a>
       </footer>
     </div>
   )

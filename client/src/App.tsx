@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api, fetchMe, logout, type Fillup, type FillupInput, type Me, type Settings, type Summary } from './api'
 import Landing from './Landing'
+import Privacy from './Privacy'
+import Terms from './Terms'
 
 const pln = (n: number) => n.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })
 const num = (n: number, d = 1) => n.toLocaleString('pl-PL', { maximumFractionDigits: d })
@@ -126,7 +128,7 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
       </header>
 
       {view === 'settings' && settings && (
-        <SettingsCard settings={settings} onSave={async (s) => { setSettings(await api.saveSettings(s)); await load(); goHome() }} />
+        <SettingsCard settings={settings} onSave={async (s) => { setSettings(await api.saveSettings(s)); await load(); goHome() }} onDelete={async () => { await api.deleteAccount(); onLogout() }} />
       )}
 
       {view === 'home' && (
@@ -186,6 +188,7 @@ function Tracker({ me, onLogout }: { me: Me; onLogout: () => void }) {
         </form>
       </div>
       )}
+      <div className="footer-links"><a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a></div>
     </div>
   )
 }
@@ -198,12 +201,14 @@ export default function App() {
     fetchMe().then((r) => setState({ loading: false, me: r.user, loginEnabled: r.loginEnabled }))
   }, [])
 
+  if (window.location.pathname === '/prywatnosc') return <Privacy />
+  if (window.location.pathname === '/regulamin') return <Terms />
   if (state.loading) return null
   if (!state.me) return <Landing loginEnabled={state.loginEnabled} error={error} />
   return (
     <Tracker
       me={state.me}
-      onLogout={async () => { await logout(); setState((s) => ({ ...s, me: null })) }}
+      onLogout={async () => { await logout().catch(() => {}); setState((s) => ({ ...s, me: null })) }}
     />
   )
 }
@@ -234,7 +239,7 @@ function SummaryCard({ s }: { s: Summary }) {
   )
 }
 
-function SettingsCard({ settings, onSave }: { settings: Settings; onSave: (s: Settings) => Promise<void> }) {
+function SettingsCard({ settings, onSave, onDelete }: { settings: Settings; onSave: (s: Settings) => Promise<void>; onDelete: () => Promise<void> }) {
   const [pc, setPc] = useState(String(settings.petrolConsumption))
   const [ic, setIc] = useState(String(settings.installCost))
   const [busy, setBusy] = useState(false)
@@ -256,6 +261,19 @@ function SettingsCard({ settings, onSave }: { settings: Settings; onSave: (s: Se
         <div className="preview">Spalanie benzyny służy do wyliczenia, ile kosztowałby ten sam dystans na benzynie.</div>
         <div className="actions"><button type="submit" disabled={busy}>Zapisz</button></div>
       </form>
+      <div className="danger-zone">
+        <p>Usuwa konto, wszystkie tankowania i ustawienia. Nieodwracalne. Szczegóły w <a href="/prywatnosc">polityce prywatności</a>.</p>
+        <button
+          type="button"
+          className="danger"
+          onClick={async () => {
+            if (!confirm('Na pewno usunąć konto i wszystkie dane? Tej operacji nie można cofnąć.')) return
+            await onDelete()
+          }}
+        >
+          Usuń konto i wszystkie dane
+        </button>
+      </div>
     </div>
   )
 }

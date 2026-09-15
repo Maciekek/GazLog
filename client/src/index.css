@@ -70,6 +70,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; margin: 0 0 16px; letter-spacing: -0.02em; }
 .hero p { font-size: 1.1rem; color: var(--muted); line-height: 1.5; margin: 0 0 24px; }
 .fine { font-size: 0.85rem !important; margin-top: 12px !important; }
+.fine a { color: inherit; }
 .landing-error { background: #fdecea; color: var(--danger); padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
 @media (prefers-color-scheme: dark) { .landing-error { background: #3a1f1c; } }
 .hero-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.10); transform: rotate(-1.5deg); }
@@ -107,3 +108,19 @@ button:disabled { opacity: 0.6; cursor: default; }
 .user img { width: 28px; height: 28px; border-radius: 50%; }
 .user .name { font-size: 0.85rem; color: var(--muted); }
 .fab { width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
+
+/* ---- privacy ---- */
+.privacy { max-width: 720px; }
+.privacy h1 { font-size: 2rem; margin: 0 0 4px; }
+.privacy h2 { font-size: 1.15rem; margin: 28px 0 8px; }
+.privacy p, .privacy li { line-height: 1.55; color: var(--text); }
+.privacy ul { padding-left: 20px; }
+.privacy li { margin-bottom: 8px; }
+.privacy .muted { color: var(--muted); font-size: 0.9rem; }
+.privacy code { background: var(--card); border: 1px solid var(--border); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+.privacy a { color: var(--accent); }
+.brand { text-decoration: none; color: inherit; }
+.danger-zone { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 16px; }
+.danger-zone p { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+.footer-links { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 8px 0 24px; }
+.footer-links a { color: inherit; }

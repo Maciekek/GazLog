@@ -50,6 +50,7 @@ export const api = {
   updateFillup: (id: number, f: FillupInput) =>
     req<Fillup>(`/api/fillups/${id}`, { method: 'PUT', body: JSON.stringify(f) }),
   deleteFillup: (id: number) => req<void>(`/api/fillups/${id}`, { method: 'DELETE' }),
+  deleteAccount: () => req<void>('/api/account', { method: 'DELETE' }),
 };
 
 export type Me = { id: number; email: string; name: string | null; picture: string | null };
