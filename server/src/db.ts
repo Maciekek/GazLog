@@ -44,7 +44,6 @@ db.exec(`
     note TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
-  CREATE INDEX IF NOT EXISTS fillups_user_date ON fillups(user_id, date DESC, id DESC);
 `);
 
 // Migration from pre-auth schema: fillups without user_id column.
@@ -63,10 +62,10 @@ if (!cols.includes("user_id")) {
       note TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
-    CREATE INDEX IF NOT EXISTS fillups_user_date ON fillups(user_id, date DESC, id DESC);
   `);
   // Old rows are kept in fillups_old; they will be attached to the first user who logs in.
 }
+db.exec("CREATE INDEX IF NOT EXISTS fillups_user_date ON fillups(user_id, date DESC, id DESC)");
 
 export type User = { id: number; google_sub: string; email: string; name: string | null; picture: string | null };
 
