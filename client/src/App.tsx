@@ -3,6 +3,7 @@ import { api, fetchMe, logout, type Fillup, type FillupInput, type Me, type Sett
 import Landing from './Landing'
 import Privacy from './Privacy'
 import Terms from './Terms'
+import ConfirmDeleteModal from './ConfirmDeleteModal'
 
 const pln = (n: number) => n.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })
 const num = (n: number, d = 1) => n.toLocaleString('pl-PL', { maximumFractionDigits: d })
@@ -243,6 +244,7 @@ function SettingsCard({ settings, onSave, onDelete }: { settings: Settings; onSa
   const [pc, setPc] = useState(String(settings.petrolConsumption))
   const [ic, setIc] = useState(String(settings.installCost))
   const [busy, setBusy] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setBusy(true)
@@ -263,17 +265,11 @@ function SettingsCard({ settings, onSave, onDelete }: { settings: Settings; onSa
       </form>
       <div className="danger-zone">
         <p>Usuwa konto, wszystkie tankowania i ustawienia. Nieodwracalne. Szczegóły w <a href="/prywatnosc">polityce prywatności</a>.</p>
-        <button
-          type="button"
-          className="danger"
-          onClick={async () => {
-            if (!confirm('Na pewno usunąć konto i wszystkie dane? Tej operacji nie można cofnąć.')) return
-            await onDelete()
-          }}
-        >
+        <button type="button" className="danger" onClick={() => setConfirmDelete(true)}>
           Usuń konto i wszystkie dane
         </button>
       </div>
+      {confirmDelete && <ConfirmDeleteModal onConfirm={onDelete} onCancel={() => setConfirmDelete(false)} />}
     </div>
   )
 }
