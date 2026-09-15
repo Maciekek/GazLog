@@ -220,3 +220,11 @@ button.danger.solid:disabled { opacity: 0.45; }
 .tooltip strong { color: var(--text); font-size: 0.85rem; margin-bottom: 2px; }
 .tooltip b { color: var(--text); }
 .chart-note { margin: 8px 0 0; font-size: 0.85rem; color: var(--accent); }
+
+/* ---- charts placeholder ---- */
+.charts.placeholder { position: relative; }
+.charts-mock { filter: blur(3px) saturate(0.6); opacity: 0.45; pointer-events: none; user-select: none; }
+.charts-mock .tooltip { display: none; }
+.charts-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 24px; }
+.charts-overlay strong { font-size: 1.05rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.charts-overlay span { font-size: 0.9rem; color: var(--muted); background: var(--card); border-radius: 8px; padding: 4px 10px; }

@@ -50,13 +50,42 @@ function series(items: Fillup[]) {
   })
 }
 
+/** Illustrative fill-ups shown blurred behind the placeholder until the user has 2+ real ones. */
+const MOCK_ITEMS: Fillup[] = [
+  ['2026-03-02', 380, 40.1], ['2026-03-16', 402, 41.8], ['2026-03-30', 355, 38.9], ['2026-04-14', 410, 39.2],
+  ['2026-04-29', 395, 36.4], ['2026-05-13', 420, 37.1], ['2026-06-01', 388, 35.2], ['2026-06-20', 445, 39.0],
+].map(([date, km, l], i) => {
+  const lpg_price = 3.15, petrol_price = 6.3
+  const lpg_cost = (l as number) * lpg_price
+  const petrol_cost = ((km as number) / 100) * 8 * petrol_price
+  return {
+    id: -(i + 1), date: date as string, distance_km: km as number, lpg_liters: l as number, lpg_price, petrol_price, note: null,
+    lpg_cost, petrol_cost, saved: petrol_cost - lpg_cost, lpg_per_100: ((l as number) / (km as number)) * 100,
+  }
+})
+
 export default function Charts({ items, installCost }: { items: Fillup[]; installCost: number }) {
-  const data = useMemo(() => series(items), [items])
-  if (data.length < 2) return null
+  const enough = items.length >= 2
+  const data = useMemo(() => series(enough ? items : MOCK_ITEMS), [items, enough])
+  if (enough) {
+    return (
+      <div className="charts">
+        <SavingsChart data={data} installCost={installCost} />
+        <ConsumptionChart data={data} />
+      </div>
+    )
+  }
+  const missing = 2 - items.length
   return (
-    <div className="charts">
-      <SavingsChart data={data} installCost={installCost} />
-      <ConsumptionChart data={data} />
+    <div className="charts placeholder" aria-hidden="false">
+      <div className="charts-mock" aria-hidden="true">
+        <SavingsChart data={data} installCost={600} />
+        <ConsumptionChart data={data} />
+      </div>
+      <div className="charts-overlay" role="status">
+        <strong>Wykresy pojawią się po dodaniu co najmniej dwóch tankowań.</strong>
+        <span>{items.length === 0 ? 'Dodaj pierwsze tankowanie, żeby zacząć.' : `Brakuje jeszcze ${missing === 1 ? 'jednego' : missing}.`}</span>
+      </div>
     </div>
   )
 }
