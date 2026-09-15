@@ -42,7 +42,9 @@ input { padding: 10px; border: 1px solid var(--border); border-radius: 8px; back
 input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 button { padding: 10px 16px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-size: 1rem; cursor: pointer; }
-button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+button.secondary, .btn-link.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-link { display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 1rem; }
+.btn-link.small { padding: 6px 10px; font-size: 0.85rem; }
 button.danger { background: transparent; color: var(--danger); border: 1px solid var(--border); }
 button.small { padding: 6px 10px; font-size: 0.85rem; }
 button:disabled { opacity: 0.6; cursor: default; }
@@ -106,7 +108,7 @@ button:disabled { opacity: 0.6; cursor: default; }
 
 /* ---- user chip ---- */
 .user { display: flex; align-items: center; gap: 8px; }
-.fab { width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
+.fab { display: block; width: 100%; box-sizing: border-box; text-align: center; text-decoration: none; background: var(--accent); color: #fff; border-radius: 8px; padding: 14px; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
 
 /* ---- privacy ---- */
 .privacy { max-width: 720px; }

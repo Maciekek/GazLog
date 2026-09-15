@@ -8,7 +8,9 @@ LPG installation cost.
 
 ## Stack
 
-- `client/` – Vite + React + TypeScript
+- `client/` – Vite + React + TypeScript + react-router
+  - `pages/` routed views (landing, tracker layout + home/form/settings, legal, 404), `components/` UI pieces,
+    `hooks/useTrackerData.ts` server state, `guides/` articles, `App.tsx` route table + auth gate
 - `server/` – Node + Express + better-sqlite3 (database at `server/data/gazlog.db`, or `/data` in Docker)
 - Google sign-in (server-side OAuth 2.0 authorization code flow, sessions in SQLite)
 

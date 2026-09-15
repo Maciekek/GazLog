@@ -1,4 +1,4 @@
-import { GUIDES } from './guides/index'
+import { GUIDES } from '../guides/index'
 
 const errors: Record<string, string> = {
   state: 'Logowanie przerwane. Spróbuj ponownie.',
@@ -9,7 +9,7 @@ const errors: Record<string, string> = {
   internal: 'Błąd serwera. Spróbuj ponownie.',
 }
 
-export default function Landing({ loginEnabled, error }: { loginEnabled: boolean; error: string | null }) {
+  export default function Landing({ loginEnabled, error }: { loginEnabled: boolean; error: string | null }) {
   return (
     <div className="landing">
       <nav className="landing-nav">

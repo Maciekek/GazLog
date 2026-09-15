@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Me } from './api'
+import type { Me } from '../api'
 
 export default function UserMenu({ me, onSettings, onLogout }: { me: Me; onSettings: () => void; onLogout: () => void }) {
   const [open, setOpen] = useState(false)
