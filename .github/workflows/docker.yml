@@ -65,6 +65,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_CONTACT_EMAIL=${{ vars.VITE_CONTACT_EMAIL }}
+            VITE_CONTACT_EMAIL=${{ vars.VITE_CONTACT_EMAIL || 'maciekek@gmail.com' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
