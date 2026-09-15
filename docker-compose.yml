@@ -1,0 +1,13 @@
+services:
+  gazlog:
+    build: .
+    image: gazlog
+    container_name: gazlog
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - gazlog-data:/data
+
+volumes:
+  gazlog-data:

@@ -28,6 +28,20 @@ npm start          # serwuje API i zbudowany client na :3001
 
 Zmienne: `PORT` (domyślnie 3001), `DATA_DIR` (domyślnie `server/data`).
 
+## Docker
+
+```bash
+docker compose up -d --build
+```
+
+Aplikacja na http://localhost:3001, baza w wolumenie `gazlog-data` (`/data` w kontenerze).
+
+Backup bazy:
+
+```bash
+docker cp gazlog:/data/gazlog.db ./gazlog-backup.db
+```
+
 ## API
 
 - `GET/PUT /api/settings` – `{ petrolConsumption, installCost }`
