@@ -18,7 +18,7 @@ export default function GuidesIndex() {
       <p className="lead">Konkretne liczby i wzory zamiast opinii z forów. Krótko, po polsku, bez sponsorowanych warsztatów.</p>
       <div className="guide-list">
         {GUIDES.map((g) => (
-          <a className="guide-card card" href={`/poradnik/${g.slug}`} key={g.slug}>
+          <a className="guide-card card" href={`/guides/${g.slug}`} key={g.slug}>
             <h2>{g.title}</h2>
             <p>{g.description}</p>
             <span className="muted">{g.readingMinutes} min czytania</span>
@@ -26,7 +26,7 @@ export default function GuidesIndex() {
         ))}
       </div>
       <footer className="landing-footer">
-        <a href="/">GazLog</a> · <a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a>
+        <a href="/">GazLog</a> · <a href="/privacy">Polityka prywatności</a> · <a href="/terms">Regulamin</a>
       </footer>
     </div>
   )

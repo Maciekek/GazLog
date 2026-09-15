@@ -7,7 +7,7 @@ export default function NotFound() {
         <Link className="brand" to="/">⛽ GazLog</Link>
       </nav>
       <h1>Nie ma takiej strony</h1>
-      <p className="lead">Może szukasz <Link to="/poradnik">poradnika</Link> albo <Link to="/">aplikacji</Link>?</p>
+      <p className="lead">Może szukasz <Link to="/guides">poradnika</Link> albo <Link to="/">aplikacji</Link>?</p>
     </div>
   )
 }

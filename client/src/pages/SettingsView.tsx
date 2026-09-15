@@ -4,7 +4,7 @@ import { api, type Settings } from '../api'
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal'
 import { useTracker } from './Tracker'
 
-/** /ustawienia. Renders once settings are loaded so inputs seed from server values. */
+/** /settings. Renders once settings are loaded so inputs seed from server values. */
 export default function SettingsView({ onLogout }: { onLogout: () => void }) {
   const { settings, saveSettings } = useTracker()
   if (!settings) return null
@@ -41,7 +41,7 @@ function SettingsForm({ settings, onSave, onDeleteAccount }: Props) {
         <div className="actions"><button type="submit" disabled={busy}>Zapisz</button></div>
       </form>
       <div className="danger-zone">
-        <p>Usuwa konto, wszystkie tankowania i ustawienia. Nieodwracalne. Szczegóły w <a href="/prywatnosc">polityce prywatności</a>.</p>
+        <p>Usuwa konto, wszystkie tankowania i ustawienia. Nieodwracalne. Szczegóły w <a href="/privacy">polityce prywatności</a>.</p>
         <button type="button" className="danger" onClick={() => setConfirmDelete(true)}>Usuń konto i wszystkie dane</button>
       </div>
       {confirmDelete && <ConfirmDeleteModal onConfirm={onDeleteAccount} onCancel={() => setConfirmDelete(false)} />}

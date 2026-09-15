@@ -38,7 +38,7 @@ const toInput = (f: FormState): FillupInput | null => {
   return ok && f.date ? out : null
 }
 
-/** /nowe and /edytuj/:id. Waits for data before rendering so the form seeds from the right fill-up. */
+/** /new and /edit/:id. Waits for data before rendering so the form seeds from the right fill-up. */
 export default function FillupFormView() {
   const { id } = useParams()
   const { items, settings, saveFillup, loaded } = useTracker()

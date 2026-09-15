@@ -94,16 +94,32 @@ app.use("/api", api);
 // SEO: robots.txt and sitemap.xml built from BASE_URL so the domain is not baked into the image.
 const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3001").replace(/\/$/, "");
 // Logged-in app routes: served with 200 but kept out of the sitemap.
-const APP_PATHS = /^\/(nowe|ustawienia|edytuj\/\d+)$/;
+const APP_PATHS = /^\/(new|settings|edit\/\d+)$/;
 const PUBLIC_PAGES = [
   "/",
-  "/poradnik",
-  "/poradnik/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca",
-  "/poradnik/lpg-czy-benzyna-kalkulator",
-  "/poradnik/jak-liczyc-spalanie-lpg",
-  "/prywatnosc",
-  "/regulamin",
+  "/guides",
+  "/guides/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca",
+  "/guides/lpg-czy-benzyna-kalkulator",
+  "/guides/jak-liczyc-spalanie-lpg",
+  "/privacy",
+  "/terms",
 ];
+
+// Old Polish paths that were live briefly -> permanent redirects.
+const LEGACY_REDIRECTS: [RegExp, string][] = [
+  [/^\/prywatnosc\/?$/, "/privacy"],
+  [/^\/regulamin\/?$/, "/terms"],
+  [/^\/poradnik(\/.*)?$/, "/guides$1"],
+  [/^\/nowe\/?$/, "/new"],
+  [/^\/ustawienia\/?$/, "/settings"],
+  [/^\/edytuj\/(\d+)\/?$/, "/edit/$1"],
+];
+app.use((req, res, next) => {
+  for (const [re, to] of LEGACY_REDIRECTS) {
+    if (re.test(req.path)) return res.redirect(301, req.path.replace(re, (_m, g1) => to.replace("$1", g1 ?? "")));
+  }
+  next();
+});
 
 app.get("/robots.txt", (_req, res) => {
   res.type("text/plain").send(
@@ -115,7 +131,7 @@ app.get("/sitemap.xml", (_req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = PUBLIC_PAGES.map(
     (p) =>
-      `  <url><loc>${BASE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>${p === "/" ? "weekly" : p.startsWith("/poradnik") ? "monthly" : "yearly"}</changefreq><priority>${p === "/" ? "1.0" : p.startsWith("/poradnik") ? "0.7" : "0.3"}</priority></url>`
+      `  <url><loc>${BASE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>${p === "/" ? "weekly" : p.startsWith("/guides") ? "monthly" : "yearly"}</changefreq><priority>${p === "/" ? "1.0" : p.startsWith("/guides") ? "0.7" : "0.3"}</priority></url>`
   );
   res
     .type("application/xml")

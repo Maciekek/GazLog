@@ -68,7 +68,7 @@ export default function Privacy() {
       </p>
 
       <footer className="landing-footer">
-        <a href="/">GazLog</a> · <a href="/regulamin">Regulamin</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a>
+        <a href="/">GazLog</a> · <a href="/terms">Regulamin</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a>
       </footer>
     </div>
   )

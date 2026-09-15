@@ -27,7 +27,7 @@ docker compose logs -f
 
 Then in Google Cloud Console add the redirect URI `https://<DOMAIN>/api/auth/google/callback`
 to the OAuth client, and set the privacy policy / terms links on the consent screen to
-`https://<DOMAIN>/prywatnosc` and `https://<DOMAIN>/regulamin`.
+`https://<DOMAIN>/privacy` and `https://<DOMAIN>/terms`.
 
 Open `https://<DOMAIN>`.
 

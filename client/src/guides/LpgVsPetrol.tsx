@@ -76,7 +76,7 @@ export default function LpgVsPetrol() {
       <p>
         Roczny przegląd instalacji, filtry, legalizację zbiornika po 10 latach, ewentualną regulację zaworów. Razem to
         zwykle 150–400 zł rocznie. Odejmij od rocznej oszczędności, jeśli chcesz mieć pełny obraz. Szczegóły w
-        artykule o <a href="/poradnik/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca">kosztach instalacji</a>.
+        artykule o <a href="/guides/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca">kosztach instalacji</a>.
       </p>
 
       <h2>Kalkulator vs rzeczywistość</h2>

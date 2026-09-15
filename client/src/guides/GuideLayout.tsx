@@ -20,7 +20,7 @@ export default function GuideLayout({ slug, title, description, published, updat
     if (meta) meta.content = description
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     const prevCanonical = canonical?.href ?? ''
-    if (canonical) canonical.href = `${window.location.origin}/poradnik/${slug}`
+    if (canonical) canonical.href = `${window.location.origin}/guides/${slug}`
     return () => {
       document.title = prevTitle
       if (meta) meta.content = prevDesc
@@ -39,18 +39,18 @@ export default function GuideLayout({ slug, title, description, published, updat
     inLanguage: 'pl',
     author: { '@type': 'Organization', name: 'GazLog' },
     publisher: { '@type': 'Organization', name: 'GazLog' },
-    mainEntityOfPage: `${window.location.origin}/poradnik/${slug}`,
+    mainEntityOfPage: `${window.location.origin}/guides/${slug}`,
   }
 
   return (
     <div className="landing guide">
       <nav className="landing-nav">
         <a className="brand" href="/">⛽ GazLog</a>
-        <a className="btn ghost" href="/poradnik">Poradnik</a>
+        <a className="btn ghost" href="/guides">Poradnik</a>
       </nav>
 
       <article>
-        <p className="crumbs"><a href="/">GazLog</a> › <a href="/poradnik">Poradnik</a></p>
+        <p className="crumbs"><a href="/">GazLog</a> › <a href="/guides">Poradnik</a></p>
         <h1>{title}</h1>
         <p className="meta">
           <time dateTime={published}>{formatDate(updated ?? published)}</time> · {readingMinutes} min czytania
@@ -73,15 +73,15 @@ export default function GuideLayout({ slug, title, description, published, updat
           <h2>Czytaj dalej</h2>
           <ul>
             {others.map((g) => (
-              <li key={g.slug}><a href={`/poradnik/${g.slug}`}>{g.title}</a></li>
+              <li key={g.slug}><a href={`/guides/${g.slug}`}>{g.title}</a></li>
             ))}
           </ul>
         </section>
       )}
 
       <footer className="landing-footer">
-        <a href="/">GazLog</a> · <a href="/poradnik">Poradnik</a> · <a href="/prywatnosc">Polityka prywatności</a> ·{' '}
-        <a href="/regulamin">Regulamin</a>
+        <a href="/">GazLog</a> · <a href="/guides">Poradnik</a> · <a href="/privacy">Polityka prywatności</a> ·{' '}
+        <a href="/terms">Regulamin</a>
       </footer>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     </div>

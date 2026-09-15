@@ -9,7 +9,7 @@ export default function AppHeader({ me, showBack, onLogout }: { me: Me; showBack
       <h1><Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>⛽ GazLog</Link></h1>
       <div className="user">
         {showBack && <Link className="btn-link secondary small" to="/">← Wróć</Link>}
-        <UserMenu me={me} onSettings={() => navigate('/ustawienia')} onLogout={onLogout} />
+        <UserMenu me={me} onSettings={() => navigate('/settings')} onLogout={onLogout} />
       </div>
     </header>
   )

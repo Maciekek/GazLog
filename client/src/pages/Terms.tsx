@@ -21,7 +21,7 @@ export default function Terms() {
       <h2>2. Konto</h2>
       <p>
         Korzystanie wymaga zalogowania kontem Google. Zakładając konto, akceptujesz ten regulamin i{' '}
-        <a href="/prywatnosc">politykę prywatności</a>. Możesz usunąć konto w każdej chwili w Ustawieniach.
+        <a href="/privacy">politykę prywatności</a>. Możesz usunąć konto w każdej chwili w Ustawieniach.
       </p>
 
       <h2>3. Zasady</h2>
@@ -55,7 +55,7 @@ export default function Terms() {
       <p>Regulamin podlega prawu polskiemu.</p>
 
       <footer className="landing-footer">
-        <a href="/">GazLog</a> · <a href="/prywatnosc">Polityka prywatności</a> ·{' '}
+        <a href="/">GazLog</a> · <a href="/privacy">Polityka prywatności</a> ·{' '}
         <a href="https://github.com/Maciekek/GazLog">GitHub</a>
       </footer>
     </div>

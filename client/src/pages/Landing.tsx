@@ -32,7 +32,7 @@ const errors: Record<string, string> = {
           ) : (
             <div className="landing-error">Logowanie nie jest skonfigurowane (brak GOOGLE_CLIENT_ID).</div>
           )}
-          <p className="fine">Bez rejestracji, bez hasła. Tylko konto Google. Logując się akceptujesz <a href="/regulamin">regulamin</a> i <a href="/prywatnosc">politykę prywatności</a>.</p>
+          <p className="fine">Bez rejestracji, bez hasła. Tylko konto Google. Logując się akceptujesz <a href="/terms">regulamin</a> i <a href="/privacy">politykę prywatności</a>.</p>
         </div>
 
         <div className="hero-card" aria-hidden="true">
@@ -77,7 +77,7 @@ const errors: Record<string, string> = {
         <h2>Poradnik LPG</h2>
         <div className="guide-list">
           {GUIDES.map((g) => (
-            <a className="guide-card card" href={`/poradnik/${g.slug}`} key={g.slug}>
+            <a className="guide-card card" href={`/guides/${g.slug}`} key={g.slug}>
               <h3>{g.title}</h3>
               <p>{g.description}</p>
             </a>
@@ -86,7 +86,7 @@ const errors: Record<string, string> = {
       </section>
 
       <footer className="landing-footer">
-        GazLog · <a href="/poradnik">Poradnik</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a>
+        GazLog · <a href="/guides">Poradnik</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/privacy">Polityka prywatności</a> · <a href="/terms">Regulamin</a>
       </footer>
     </div>
   )

@@ -16,7 +16,7 @@ export default function Tracker({ me, onLogout }: { me: Me; onLogout: () => void
       <Outlet context={data} />
       {data.error && <div className="error">{data.error}</div>}
       <div className="footer-links">
-        <Link to="/prywatnosc">Polityka prywatności</Link> · <Link to="/regulamin">Regulamin</Link>
+        <Link to="/privacy">Polityka prywatności</Link> · <Link to="/terms">Regulamin</Link>
       </div>
     </div>
   )

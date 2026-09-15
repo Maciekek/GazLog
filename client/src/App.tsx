@@ -30,20 +30,20 @@ export default function App() {
   return (
     <Routes>
       {/* Public pages, no session needed. Keep in sync with PUBLIC_PAGES in server/src/index.ts. */}
-      <Route path="/prywatnosc" element={<Privacy />} />
-      <Route path="/regulamin" element={<Terms />} />
-      <Route path="/poradnik" element={<GuidesIndex />} />
-      <Route path="/poradnik/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca" element={<InstallCost />} />
-      <Route path="/poradnik/lpg-czy-benzyna-kalkulator" element={<LpgVsPetrol />} />
-      <Route path="/poradnik/jak-liczyc-spalanie-lpg" element={<FuelConsumption />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/guides" element={<GuidesIndex />} />
+      <Route path="/guides/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca" element={<InstallCost />} />
+      <Route path="/guides/lpg-czy-benzyna-kalkulator" element={<LpgVsPetrol />} />
+      <Route path="/guides/jak-liczyc-spalanie-lpg" element={<FuelConsumption />} />
 
       {/* App: landing when logged out, tracker layout with nested views when logged in. */}
       <Route element={<AuthGate auth={auth} />}>
         <Route element={<Tracker me={auth.me!} onLogout={onLogout} />}>
           <Route index element={<HomeView />} />
-          <Route path="nowe" element={<FillupFormView />} />
-          <Route path="edytuj/:id" element={<FillupFormView />} />
-          <Route path="ustawienia" element={<SettingsView onLogout={onLogout} />} />
+          <Route path="new" element={<FillupFormView />} />
+          <Route path="edit/:id" element={<FillupFormView />} />
+          <Route path="settings" element={<SettingsView onLogout={onLogout} />} />
         </Route>
       </Route>
 
