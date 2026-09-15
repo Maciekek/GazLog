@@ -58,6 +58,19 @@ docker compose up -d --build
 App on http://localhost:3001, database in the `gazlog-data` volume (`/data` inside the container).
 `.env` is loaded via `env_file`; `VITE_CONTACT_EMAIL` is passed as a build arg.
 
+### Prebuilt image
+
+GitHub Actions builds `ghcr.io/maciekek/gazlog` (linux/amd64 + arm64) on every push to `main`
+(`latest`, `<sha>`) and on `v*` tags (`1.2.3`, `1.2`). On a server:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+The contact e-mail baked into the image comes from the repository variable `VITE_CONTACT_EMAIL`
+(Settings → Secrets and variables → Actions → Variables).
+
 Backup:
 
 ```bash
