@@ -31,7 +31,7 @@ export default function ConfirmDeleteModal({ onConfirm, onCancel }: { onConfirm:
           możliwości przywrócenia.
         </p>
         <label>
-          Napisz <code>{PHRASE}</code>, żeby usunąć
+          <span>Napisz <code>{PHRASE}</code>, żeby usunąć</span>
           <input
             ref={inputRef}
             type="text"
