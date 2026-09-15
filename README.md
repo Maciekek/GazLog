@@ -73,6 +73,13 @@ Backup:
 docker cp gazlog:/data/gazlog.db ./gazlog-backup.db
 ```
 
+## Guides (content marketing)
+
+`/poradnik` lists Polish articles under `client/src/guides/`; each sets its own title, meta
+description, canonical and `Article` JSON-LD. Add a guide by creating a component, registering
+it in `guides/index.ts`, `GUIDE_ROUTES` in `App.tsx` and `PUBLIC_PAGES` in `server/src/index.ts`
+(sitemap + 200 vs 404). Unknown paths return a real 404.
+
 ## SEO / marketing assets
 
 - `client/index.html`: title, meta description, keywords, canonical, Open Graph, Twitter card, JSON-LD (`WebApplication`), theme-color.

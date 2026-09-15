@@ -5,6 +5,16 @@ import Privacy from './Privacy'
 import Terms from './Terms'
 import ConfirmDeleteModal from './ConfirmDeleteModal'
 import UserMenu from './UserMenu'
+import GuidesIndex from './guides/GuidesIndex'
+import InstallCost from './guides/InstallCost'
+import LpgVsPetrol from './guides/LpgVsPetrol'
+import FuelConsumption from './guides/FuelConsumption'
+
+const GUIDE_ROUTES: Record<string, () => React.ReactElement> = {
+  'ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca': InstallCost,
+  'lpg-czy-benzyna-kalkulator': LpgVsPetrol,
+  'jak-liczyc-spalanie-lpg': FuelConsumption,
+}
 
 const pln = (n: number) => n.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })
 const num = (n: number, d = 1) => n.toLocaleString('pl-PL', { maximumFractionDigits: d })
@@ -198,8 +208,15 @@ export default function App() {
     fetchMe().then((r) => setState({ loading: false, me: r.user, loginEnabled: r.loginEnabled }))
   }, [])
 
-  if (window.location.pathname === '/prywatnosc') return <Privacy />
-  if (window.location.pathname === '/regulamin') return <Terms />
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+  if (path === '/prywatnosc') return <Privacy />
+  if (path === '/regulamin') return <Terms />
+  if (path === '/poradnik') return <GuidesIndex />
+  if (path.startsWith('/poradnik/')) {
+    const Guide = GUIDE_ROUTES[path.slice('/poradnik/'.length)]
+    return Guide ? <Guide /> : <NotFound />
+  }
+  if (path !== '/') return <NotFound />
   if (state.loading) return null
   if (!state.me) return <Landing loginEnabled={state.loginEnabled} error={error} />
   return (
@@ -207,6 +224,18 @@ export default function App() {
       me={state.me}
       onLogout={async () => { await logout().catch(() => {}); setState((s) => ({ ...s, me: null })) }}
     />
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="landing guide">
+      <nav className="landing-nav">
+        <a className="brand" href="/">⛽ GazLog</a>
+      </nav>
+      <h1>Nie ma takiej strony</h1>
+      <p className="lead">Może szukasz <a href="/poradnik">poradnika</a> albo <a href="/">aplikacji</a>?</p>
+    </div>
   )
 }
 

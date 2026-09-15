@@ -93,7 +93,15 @@ app.use("/api", api);
 
 // SEO: robots.txt and sitemap.xml built from BASE_URL so the domain is not baked into the image.
 const BASE_URL = (process.env.BASE_URL ?? "http://localhost:3001").replace(/\/$/, "");
-const PUBLIC_PAGES = ["/", "/prywatnosc", "/regulamin"];
+const PUBLIC_PAGES = [
+  "/",
+  "/poradnik",
+  "/poradnik/ile-kosztuje-instalacja-lpg-i-kiedy-sie-zwraca",
+  "/poradnik/lpg-czy-benzyna-kalkulator",
+  "/poradnik/jak-liczyc-spalanie-lpg",
+  "/prywatnosc",
+  "/regulamin",
+];
 
 app.get("/robots.txt", (_req, res) => {
   res.type("text/plain").send(
@@ -105,7 +113,7 @@ app.get("/sitemap.xml", (_req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = PUBLIC_PAGES.map(
     (p) =>
-      `  <url><loc>${BASE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>${p === "/" ? "weekly" : "yearly"}</changefreq><priority>${p === "/" ? "1.0" : "0.3"}</priority></url>`
+      `  <url><loc>${BASE_URL}${p}</loc><lastmod>${today}</lastmod><changefreq>${p === "/" ? "weekly" : p.startsWith("/poradnik") ? "monthly" : "yearly"}</changefreq><priority>${p === "/" ? "1.0" : p.startsWith("/poradnik") ? "0.7" : "0.3"}</priority></url>`
   );
   res
     .type("application/xml")
@@ -122,7 +130,8 @@ if (fs.existsSync(clientDist)) {
   } }));
   app.get("*", (req, res) => {
     if (req.path.startsWith("/api/")) return res.status(404).json({ error: "not found" });
-    res.type("html").setHeader("Cache-Control", "no-cache").send(indexHtml);
+    const known = PUBLIC_PAGES.includes(req.path.replace(/\/+$/, "") || "/");
+    res.status(known ? 200 : 404).type("html").setHeader("Cache-Control", "no-cache").send(indexHtml);
   });
 }
 

@@ -1,3 +1,5 @@
+import { GUIDES } from './guides/index'
+
 const errors: Record<string, string> = {
   state: 'Logowanie przerwane. Spróbuj ponownie.',
   token: 'Google odrzucił logowanie. Spróbuj ponownie.',
@@ -71,8 +73,20 @@ export default function Landing({ loginEnabled, error }: { loginEnabled: boolean
         <p className="fine">Spalanie na benzynie ustawiasz raz w ustawieniach. Reszta liczy się sama.</p>
       </section>
 
+      <section className="guides-teaser">
+        <h2>Poradnik LPG</h2>
+        <div className="guide-list">
+          {GUIDES.map((g) => (
+            <a className="guide-card card" href={`/poradnik/${g.slug}`} key={g.slug}>
+              <h3>{g.title}</h3>
+              <p>{g.description}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <footer className="landing-footer">
-        GazLog · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a>
+        GazLog · <a href="/poradnik">Poradnik</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/prywatnosc">Polityka prywatności</a> · <a href="/regulamin">Regulamin</a>
       </footer>
     </div>
   )
