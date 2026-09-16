@@ -246,3 +246,11 @@ button.danger.solid:disabled { opacity: 0.45; }
 
 .hint { color: var(--muted); font-weight: 400; }
 label > span { display: block; }
+
+/* ---- distance/odometer switch ---- */
+.field-switch { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; align-self: end; height: 42px; }
+.seg button { flex: 1; background: transparent; color: var(--muted); border: none; border-radius: 0; padding: 0 12px; font-size: 0.9rem; white-space: nowrap; }
+.seg button.on { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+.seg button + button { border-left: 1px solid var(--border); }
+.field-switch label .hint { font-size: 0.75rem; margin-top: 2px; }

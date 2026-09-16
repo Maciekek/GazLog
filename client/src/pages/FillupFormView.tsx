@@ -66,9 +66,20 @@ type Props = {
   onSubmit: (input: FillupInput) => Promise<void>
 }
 
+type Mode = 'distance' | 'odometer'
+const MODE_KEY = 'gazlog.distanceMode'
+const readMode = (fallback: Mode): Mode => {
+  try { const v = localStorage.getItem(MODE_KEY); return v === 'distance' || v === 'odometer' ? v : fallback } catch { return fallback }
+}
+const saveMode = (m: Mode) => { try { localStorage.setItem(MODE_KEY, m) } catch { /* ignore */ } }
+
 function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSubmit }: Props) {
   const navigate = useNavigate()
   const [form, setForm] = useState<FormState>(() => (editing ? fromFillup(editing) : emptyForm(lastFillup)))
+  const [mode, setMode] = useState<Mode>(() => readMode(editing?.odometer_km != null || prevOdometer !== null ? 'odometer' : 'distance'))
+  const switchMode = (m: Mode) => { setMode(m); saveMode(m) }
+  // Odometer mode needs a previous reading to derive distance; the very first reading also asks for km.
+  const needsDistanceToo = mode === 'odometer' && prevOdometer === null
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -83,7 +94,7 @@ function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSu
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     const inp = toInput(form)
-    if (!inp) return setError('Uzupełnij wszystkie pola liczbami > 0')
+    if (!inp) return setError(mode === 'odometer' && !form.distance_km ? 'Wpisz stan licznika większy niż poprzedni.' : 'Uzupełnij wszystkie pola liczbami > 0')
     setBusy(true)
     setError(null)
     try {
@@ -136,14 +147,33 @@ function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSu
       <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>{editing ? 'Edycja tankowania' : 'Nowe tankowanie'}</h2>
       <form className="grid" onSubmit={submit}>
         <label>Data<input type="date" value={form.date} onChange={set('date')} required /></label>
-        <label>
-          <span>Stan licznika (km){prevOdometer !== null && <small className="hint"> · poprzedni {num(prevOdometer, 0)}</small>}</span>
-          <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={setOdometer} placeholder={prevOdometer !== null ? `np. ${num(prevOdometer + 400, 0).replace(/\s/g, '')}` : 'opcjonalnie'} />
-        </label>
-        <label>
-          <span>Przejechane km{prevOdometer !== null && form.odometer_km && !odoWarning && <small className="hint"> · z licznika</small>}</span>
-          <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={setDistance} placeholder="np. 420" required />
-        </label>
+        <div className="field-switch" role="group" aria-label="Sposób podania dystansu">
+          <div className="seg">
+            <button type="button" className={mode === 'distance' ? 'on' : ''} onClick={() => switchMode('distance')}>Przejechane km</button>
+            <button type="button" className={mode === 'odometer' ? 'on' : ''} onClick={() => switchMode('odometer')}>Stan licznika</button>
+          </div>
+          {mode === 'distance' ? (
+            <label>
+              <span>Przejechane km</span>
+              <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={setDistance} placeholder="np. 420" required autoFocus />
+              {prevOdometer !== null && form.distance_km && Number.isFinite(parse(form.distance_km)) && (
+                <small className="hint">licznik: {num(prevOdometer + parse(form.distance_km), 0)} km</small>
+              )}
+            </label>
+          ) : (
+            <label>
+              <span>Stan licznika (km){prevOdometer !== null && <small className="hint"> · poprzedni {num(prevOdometer, 0)}</small>}</span>
+              <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={setOdometer} placeholder={prevOdometer !== null ? `np. ${num(prevOdometer + 400, 0).replace(/\s/g, '')}` : 'np. 120400'} required autoFocus />
+              {prevOdometer !== null && form.distance_km && !odoWarning && <small className="hint">przejechane: {num(parse(form.distance_km), 0)} km</small>}
+            </label>
+          )}
+          {needsDistanceToo && (
+            <label>
+              <span>Przejechane km <small className="hint">· pierwszy odczyt, brak poprzedniego stanu</small></span>
+              <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={set('distance_km')} placeholder="np. 420" required />
+            </label>
+          )}
+        </div>
         {numberField('lpg_liters', 'Zatankowano LPG (l)', 'np. 38.5')}
         {numberField('lpg_price', 'Cena LPG (zł/l)', 'np. 3.19')}
         {numberField('petrol_price', 'Cena benzyny (zł/l)', 'np. 6.29')}
