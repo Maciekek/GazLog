@@ -76,10 +76,12 @@ const saveMode = (m: Mode) => { try { localStorage.setItem(MODE_KEY, m) } catch 
 function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSubmit }: Props) {
   const navigate = useNavigate()
   const [form, setForm] = useState<FormState>(() => (editing ? fromFillup(editing) : emptyForm(lastFillup)))
-  const [mode, setMode] = useState<Mode>(() => readMode(editing?.odometer_km != null || prevOdometer !== null ? 'odometer' : 'distance'))
-  const switchMode = (m: Mode) => { setMode(m); saveMode(m) }
-  // Odometer mode needs a previous reading to derive distance; the very first reading also asks for km.
-  const needsDistanceToo = mode === 'odometer' && prevOdometer === null
+  // Without a previous reading the odometer cannot yield a distance, so the switch is locked on km.
+  const locked = prevOdometer === null
+  const [modePref, setModePref] = useState<Mode>(() => readMode('odometer'))
+  const mode: Mode = locked ? 'distance' : modePref
+  const switchMode = (m: Mode) => { if (locked) return; setModePref(m); saveMode(m) }
+  const [showFirstOdometer, setShowFirstOdometer] = useState(() => !!editing?.odometer_km)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -148,29 +150,26 @@ function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSu
       <form className="grid" onSubmit={submit}>
         <label>Data<input type="date" value={form.date} onChange={set('date')} required /></label>
         <div className="field-switch" role="group" aria-label="Sposób podania dystansu">
-          <div className="seg">
-            <button type="button" className={mode === 'distance' ? 'on' : ''} onClick={() => switchMode('distance')}>Przejechane km</button>
-            <button type="button" className={mode === 'odometer' ? 'on' : ''} onClick={() => switchMode('odometer')}>Stan licznika</button>
+          <div className="seg" aria-disabled={locked}>
+            <button type="button" className={mode === 'distance' ? 'on' : ''} disabled={locked} onClick={() => switchMode('distance')}>Przejechane km</button>
+            <button type="button" className={mode === 'odometer' ? 'on' : ''} disabled={locked} onClick={() => switchMode('odometer')} title={locked ? 'Brak poprzedniego stanu licznika' : undefined}>Stan licznika</button>
           </div>
           {mode === 'distance' ? (
-            <label>
-              <span>Przejechane km</span>
-              <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={setDistance} placeholder="np. 420" required autoFocus />
-              {prevOdometer !== null && form.distance_km && Number.isFinite(parse(form.distance_km)) && (
-                <small className="hint">licznik: {num(prevOdometer + parse(form.distance_km), 0)} km</small>
-              )}
-            </label>
+            <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={setDistance} placeholder="Przejechane km, np. 420" aria-label="Przejechane km" required autoFocus />
           ) : (
-            <label>
-              <span>Stan licznika (km){prevOdometer !== null && <small className="hint"> · poprzedni {num(prevOdometer, 0)}</small>}</span>
-              <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={setOdometer} placeholder={prevOdometer !== null ? `np. ${num(prevOdometer + 400, 0).replace(/\s/g, '')}` : 'np. 120400'} required autoFocus />
-              {prevOdometer !== null && form.distance_km && !odoWarning && <small className="hint">przejechane: {num(parse(form.distance_km), 0)} km</small>}
-            </label>
+            <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={setOdometer} placeholder={`Stan licznika, poprzedni ${num(prevOdometer ?? 0, 0)}`} aria-label="Stan licznika (km)" required autoFocus />
           )}
-          {needsDistanceToo && (
-            <label>
-              <span>Przejechane km <small className="hint">· pierwszy odczyt, brak poprzedniego stanu</small></span>
-              <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={set('distance_km')} placeholder="np. 420" required />
+          <div className="field-hint">
+            {mode === 'odometer' && form.distance_km && !odoWarning && <>przejechane: <b>{num(parse(form.distance_km), 0)} km</b></>}
+            {mode === 'distance' && !locked && form.distance_km && Number.isFinite(parse(form.distance_km)) && <>licznik: <b>{num(prevOdometer! + parse(form.distance_km), 0)} km</b></>}
+            {locked && !showFirstOdometer && (
+              <button type="button" className="linkish" onClick={() => setShowFirstOdometer(true)}>+ zapisz stan licznika, żeby następne tankowania liczyć z licznika</button>
+            )}
+          </div>
+          {locked && showFirstOdometer && (
+            <label className="first-odo">
+              <span>Stan licznika (km) <small className="hint">· pierwszy odczyt</small></span>
+              <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={set('odometer_km')} placeholder="np. 120400" />
             </label>
           )}
         </div>

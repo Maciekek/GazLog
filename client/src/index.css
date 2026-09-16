@@ -248,9 +248,21 @@ button.danger.solid:disabled { opacity: 0.45; }
 label > span { display: block; }
 
 /* ---- distance/odometer switch ---- */
-.field-switch { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
-.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; align-self: end; height: 42px; }
-.seg button { flex: 1; background: transparent; color: var(--muted); border: none; border-radius: 0; padding: 0 12px; font-size: 0.9rem; white-space: nowrap; }
+.field-switch { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; gap: 0 12px; align-items: center; }
+.field-switch > input { min-width: 0; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; height: 42px; }
+.seg button { background: transparent; color: var(--muted); border: none; border-radius: 0; padding: 0 14px; font-size: 0.9rem; white-space: nowrap; }
 .seg button.on { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
 .seg button + button { border-left: 1px solid var(--border); }
-.field-switch label .hint { font-size: 0.75rem; margin-top: 2px; }
+.seg button:disabled { cursor: not-allowed; opacity: 0.55; }
+.seg button.on:disabled { opacity: 0.8; }
+.field-hint { grid-column: 2; font-size: 0.78rem; color: var(--muted); min-height: 1.1em; margin-top: 4px; }
+.field-hint b { color: var(--text); font-weight: 600; }
+.linkish { background: none; border: none; padding: 0; color: var(--accent); font-size: 0.78rem; cursor: pointer; text-align: left; }
+.first-odo { grid-column: 1 / -1; margin-top: 8px; }
+@media (max-width: 520px) {
+  .field-switch { grid-template-columns: 1fr; gap: 8px; }
+  .seg { width: 100%; }
+  .seg button { flex: 1; }
+  .field-hint { grid-column: 1; margin-top: 0; }
+}
