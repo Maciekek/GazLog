@@ -4,10 +4,11 @@ import type { Fillup, FillupInput } from '../api'
 import { num, pln, today } from '../format'
 import { useTracker } from './Tracker'
 
-type FormState = { date: string; distance_km: string; lpg_liters: string; lpg_price: string; petrol_price: string; note: string }
+type FormState = { date: string; odometer_km: string; distance_km: string; lpg_liters: string; lpg_price: string; petrol_price: string; note: string }
 
 const emptyForm = (last?: Fillup): FormState => ({
   date: today(),
+  odometer_km: '',
   distance_km: '',
   lpg_liters: '',
   lpg_price: last ? String(last.lpg_price) : '',
@@ -17,6 +18,7 @@ const emptyForm = (last?: Fillup): FormState => ({
 
 const fromFillup = (f: Fillup): FormState => ({
   date: f.date,
+  odometer_km: f.odometer_km === null ? '' : String(f.odometer_km),
   distance_km: String(f.distance_km),
   lpg_liters: String(f.lpg_liters),
   lpg_price: String(f.lpg_price),
@@ -26,8 +28,11 @@ const fromFillup = (f: Fillup): FormState => ({
 
 const toInput = (f: FormState): FillupInput | null => {
   const n = (s: string) => Number(s.replace(',', '.'))
+  const odo = f.odometer_km.trim() === '' ? null : n(f.odometer_km)
+  if (odo !== null && !(Number.isFinite(odo) && odo >= 0)) return null
   const out = {
     date: f.date,
+    odometer_km: odo,
     distance_km: n(f.distance_km),
     lpg_liters: n(f.lpg_liters),
     lpg_price: n(f.lpg_price),
@@ -46,18 +51,22 @@ export default function FillupFormView() {
   const editId = id ? Number(id) : null
   const editing = editId !== null ? items.find((f) => f.id === editId) ?? null : null
   if (editId !== null && !editing) return <Navigate to="/" replace />
-  return <FillupForm key={editId ?? 'new'} editing={editing} lastFillup={items[0]} petrolConsumption={settings?.petrolConsumption}
-    onSubmit={(input) => saveFillup(input, editId)} />
+  // items are newest-first; "previous" = the entry just older than the one being edited (or the newest for a new entry)
+  const olderThanEdited = editing ? items.slice(items.findIndex((f) => f.id === editing.id) + 1) : items
+  const prevOdometer = olderThanEdited.find((f) => f.odometer_km !== null)?.odometer_km ?? null
+  return <FillupForm key={editId ?? 'new'} editing={editing} lastFillup={items[0]} prevOdometer={prevOdometer}
+    petrolConsumption={settings?.petrolConsumption} onSubmit={(input) => saveFillup(input, editId)} />
 }
 
 type Props = {
   editing: Fillup | null
   lastFillup: Fillup | undefined
+  prevOdometer: number | null
   petrolConsumption: number | undefined
   onSubmit: (input: FillupInput) => Promise<void>
 }
 
-function FillupForm({ editing, lastFillup, petrolConsumption, onSubmit }: Props) {
+function FillupForm({ editing, lastFillup, prevOdometer, petrolConsumption, onSubmit }: Props) {
   const navigate = useNavigate()
   const [form, setForm] = useState<FormState>(() => (editing ? fromFillup(editing) : emptyForm(lastFillup)))
   const [busy, setBusy] = useState(false)
@@ -90,6 +99,31 @@ function FillupForm({ editing, lastFillup, petrolConsumption, onSubmit }: Props)
   const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((s) => ({ ...s, [k]: e.target.value }))
 
+  const parse = (v: string) => Number(v.replace(',', '.'))
+  const fmt = (n: number) => String(Math.round(n * 10) / 10)
+
+  // Odometer and distance are linked through the previous odometer reading, whichever the user types last wins.
+  const setOdometer = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    setForm((s) => {
+      const odo = parse(v)
+      const linked = prevOdometer !== null && v.trim() !== '' && Number.isFinite(odo) && odo > prevOdometer
+      return { ...s, odometer_km: v, distance_km: linked ? fmt(odo - prevOdometer) : s.distance_km }
+    })
+  }
+  const setDistance = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    setForm((s) => {
+      const d = parse(v)
+      const linked = prevOdometer !== null && v.trim() !== '' && Number.isFinite(d) && d > 0
+      return { ...s, distance_km: v, odometer_km: linked ? fmt(prevOdometer + d) : s.odometer_km }
+    })
+  }
+  const odoNum = parse(form.odometer_km)
+  const odoWarning = prevOdometer !== null && form.odometer_km.trim() !== '' && Number.isFinite(odoNum) && odoNum <= prevOdometer
+    ? `Stan licznika nie może być mniejszy niż poprzedni (${num(prevOdometer, 0)} km).`
+    : null
+
   const numberField = (k: keyof FormState, label: string, placeholder: string) => (
     <label>
       {label}
@@ -102,7 +136,14 @@ function FillupForm({ editing, lastFillup, petrolConsumption, onSubmit }: Props)
       <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>{editing ? 'Edycja tankowania' : 'Nowe tankowanie'}</h2>
       <form className="grid" onSubmit={submit}>
         <label>Data<input type="date" value={form.date} onChange={set('date')} required /></label>
-        {numberField('distance_km', 'Przejechane km', 'np. 420')}
+        <label>
+          <span>Stan licznika (km){prevOdometer !== null && <small className="hint"> · poprzedni {num(prevOdometer, 0)}</small>}</span>
+          <input type="number" inputMode="numeric" step="any" min="0" value={form.odometer_km} onChange={setOdometer} placeholder={prevOdometer !== null ? `np. ${num(prevOdometer + 400, 0).replace(/\s/g, '')}` : 'opcjonalnie'} />
+        </label>
+        <label>
+          <span>Przejechane km{prevOdometer !== null && form.odometer_km && !odoWarning && <small className="hint"> · z licznika</small>}</span>
+          <input type="number" inputMode="decimal" step="any" min="0" value={form.distance_km} onChange={setDistance} placeholder="np. 420" required />
+        </label>
         {numberField('lpg_liters', 'Zatankowano LPG (l)', 'np. 38.5')}
         {numberField('lpg_price', 'Cena LPG (zł/l)', 'np. 3.19')}
         {numberField('petrol_price', 'Cena benzyny (zł/l)', 'np. 6.29')}
@@ -113,9 +154,10 @@ function FillupForm({ editing, lastFillup, petrolConsumption, onSubmit }: Props)
             <strong>oszczędność {pln(preview.saved)}</strong>
           </div>
         )}
+        {odoWarning && <div className="error" style={{ gridColumn: '1 / -1' }}>{odoWarning}</div>}
         {error && <div className="error" style={{ gridColumn: '1 / -1' }}>{error}</div>}
         <div className="actions">
-          <button type="submit" disabled={busy}>{editing ? 'Zapisz' : 'Dodaj'}</button>
+          <button type="submit" disabled={busy || !!odoWarning}>{editing ? 'Zapisz' : 'Dodaj'}</button>
           <button type="button" className="secondary" onClick={() => navigate('/')}>Anuluj</button>
         </div>
       </form>

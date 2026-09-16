@@ -19,6 +19,7 @@ const fillupSchema = z.object({
   lpg_liters: z.number().positive(),
   lpg_price: z.number().positive(),
   petrol_price: z.number().positive(),
+  odometer_km: z.number().nonnegative().nullable().optional(),
   note: z.string().max(500).nullable().optional(),
 });
 
@@ -54,9 +55,9 @@ api.post("/fillups", (req, res) => {
   const uid = req.user!.id;
   const info = db
     .prepare(
-      "INSERT INTO fillups (user_id, date, distance_km, lpg_liters, lpg_price, petrol_price, note) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO fillups (user_id, date, distance_km, lpg_liters, lpg_price, petrol_price, odometer_km, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     )
-    .run(uid, d.date, d.distance_km, d.lpg_liters, d.lpg_price, d.petrol_price, d.note ?? null);
+    .run(uid, d.date, d.distance_km, d.lpg_liters, d.lpg_price, d.petrol_price, d.odometer_km ?? null, d.note ?? null);
   const row = db.prepare("SELECT * FROM fillups WHERE id = ?").get(info.lastInsertRowid) as Fillup;
   res.status(201).json(enrich(row, getSettings(uid)));
 });
@@ -68,9 +69,9 @@ api.put("/fillups/:id", (req, res) => {
   const uid = req.user!.id;
   const info = db
     .prepare(
-      "UPDATE fillups SET date=?, distance_km=?, lpg_liters=?, lpg_price=?, petrol_price=?, note=? WHERE id=? AND user_id=?"
+      "UPDATE fillups SET date=?, distance_km=?, lpg_liters=?, lpg_price=?, petrol_price=?, odometer_km=?, note=? WHERE id=? AND user_id=?"
     )
-    .run(d.date, d.distance_km, d.lpg_liters, d.lpg_price, d.petrol_price, d.note ?? null, req.params.id, uid);
+    .run(d.date, d.distance_km, d.lpg_liters, d.lpg_price, d.petrol_price, d.odometer_km ?? null, d.note ?? null, req.params.id, uid);
   if (info.changes === 0) return res.status(404).json({ error: "not found" });
   const row = db.prepare("SELECT * FROM fillups WHERE id = ?").get(req.params.id) as Fillup;
   res.json(enrich(row, getSettings(uid)));

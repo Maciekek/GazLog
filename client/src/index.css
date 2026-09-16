@@ -243,3 +243,6 @@ button.danger.solid:disabled { opacity: 0.45; }
 .u-email { color: var(--muted); font-size: 0.8rem; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
 .badge.admin { background: var(--accent-bg); color: var(--accent); border-color: transparent; font-weight: 600; }
+
+.hint { color: var(--muted); font-weight: 400; }
+label > span { display: block; }

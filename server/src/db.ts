@@ -41,6 +41,7 @@ db.exec(`
     lpg_liters REAL NOT NULL,
     lpg_price REAL NOT NULL,
     petrol_price REAL NOT NULL,
+    odometer_km REAL,
     note TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
@@ -59,6 +60,12 @@ db.prepare(`UPDATE users SET role = CASE WHEN lower(email) IN (${ADMIN_EMAILS.ma
 
 export const isAdminEmail = (email: string) => ADMIN_EMAILS.includes(email.toLowerCase());
 
+// Optional odometer reading per fill-up (distance_km stays the source of truth for calculations).
+const fillupCols = (db.prepare("PRAGMA table_info(fillups)").all() as { name: string }[]).map((c) => c.name);
+if (fillupCols.includes("user_id") && !fillupCols.includes("odometer_km")) {
+  db.exec("ALTER TABLE fillups ADD COLUMN odometer_km REAL");
+}
+
 // Migration from pre-auth schema: fillups without user_id column.
 const cols = (db.prepare("PRAGMA table_info(fillups)").all() as { name: string }[]).map((c) => c.name);
 if (!cols.includes("user_id")) {
@@ -72,6 +79,7 @@ if (!cols.includes("user_id")) {
       lpg_liters REAL NOT NULL,
       lpg_price REAL NOT NULL,
       petrol_price REAL NOT NULL,
+      odometer_km REAL,
       note TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -181,6 +189,7 @@ export type Fillup = {
   lpg_liters: number;
   lpg_price: number;
   petrol_price: number;
+  odometer_km: number | null;
   note: string | null;
 };
 

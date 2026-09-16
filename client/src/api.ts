@@ -6,11 +6,13 @@ export type FillupInput = {
   lpg_liters: number;
   lpg_price: number;
   petrol_price: number;
+  odometer_km?: number | null;
   note?: string | null;
 };
 
 export type Fillup = FillupInput & {
   id: number;
+  odometer_km: number | null;
   note: string | null;
   lpg_cost: number;
   petrol_cost: number;
