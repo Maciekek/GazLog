@@ -49,6 +49,7 @@ export default function GuideLayout({ slug, title, description, published, updat
         <a className="btn ghost" href="/guides">Poradnik</a>
       </nav>
 
+      <main>
       <article>
         <p className="crumbs"><a href="/">GazLog</a> › <a href="/guides">Poradnik</a></p>
         <h1>{title}</h1>
@@ -58,6 +59,7 @@ export default function GuideLayout({ slug, title, description, published, updat
         <p className="lead">{description}</p>
         {children}
       </article>
+      </main>
 
       <aside className="cta card">
         <h2>Policz to na własnych liczbach</h2>

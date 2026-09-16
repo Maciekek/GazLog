@@ -13,7 +13,9 @@ export default function Tracker({ me, onLogout }: { me: Me; onLogout: () => void
   return (
     <div className="app">
       <AppHeader me={me} showBack={pathname !== '/'} onLogout={onLogout} />
-      <Outlet context={data} />
+      <main>
+        <Outlet context={data} />
+      </main>
       {data.error && <div className="error">{data.error}</div>}
       <div className="footer-links">
         <Link to="/privacy">Polityka prywatności</Link> · <Link to="/terms">Regulamin</Link>

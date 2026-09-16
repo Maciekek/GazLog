@@ -24,6 +24,52 @@ export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   };
 }
 
+export type Maintenance = {
+  /** Current position in km: latest odometer reading if any, otherwise total km logged. */
+  positionKm: number;
+  positionIsOdometer: boolean;
+  filter: { enabled: boolean; lastKm: number | null; dueKm: number | null; leftKm: number | null; status: "ok" | "soon" | "due" | "unset" };
+  inspection: { enabled: boolean; lastDate: string | null; dueDate: string | null; leftDays: number | null; status: "ok" | "soon" | "due" | "unset" };
+};
+
+const FILTER_SOON_KM = 1000;
+const INSPECTION_SOON_DAYS = 30;
+
+export function maintenance(all: FillupWithCalc[], s: Settings, totalKm: number, today = new Date()): Maintenance {
+  const odometers = all.map((f) => f.odometer_km).filter((v): v is number => v !== null);
+  const positionIsOdometer = odometers.length > 0;
+  const positionKm = positionIsOdometer ? Math.max(...odometers) : totalKm;
+
+  // Filter: if the user never set a "last change", assume the first known odometer / 0 km.
+  const firstOdometer = positionIsOdometer ? Math.min(...odometers) : 0;
+  const lastKm = s.filterLastKm ?? (positionIsOdometer || totalKm > 0 ? firstOdometer : null);
+  const filterEnabled = s.filterIntervalKm > 0;
+  let filter: Maintenance["filter"] = { enabled: filterEnabled, lastKm, dueKm: null, leftKm: null, status: "unset" };
+  if (filterEnabled && lastKm !== null) {
+    const dueKm = lastKm + s.filterIntervalKm;
+    const leftKm = round(dueKm - positionKm);
+    filter = { enabled: true, lastKm, dueKm, leftKm, status: leftKm <= 0 ? "due" : leftKm <= FILTER_SOON_KM ? "soon" : "ok" };
+  }
+
+  const inspectionEnabled = s.inspectionIntervalMonths > 0;
+  let inspection: Maintenance["inspection"] = { enabled: inspectionEnabled, lastDate: s.inspectionLastDate, dueDate: null, leftDays: null, status: "unset" };
+  if (inspectionEnabled && s.inspectionLastDate) {
+    const due = new Date(s.inspectionLastDate + "T00:00:00Z");
+    due.setUTCMonth(due.getUTCMonth() + s.inspectionIntervalMonths);
+    const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    const leftDays = Math.round((due.getTime() - todayUtc) / 86_400_000);
+    inspection = {
+      enabled: true,
+      lastDate: s.inspectionLastDate,
+      dueDate: due.toISOString().slice(0, 10),
+      leftDays,
+      status: leftDays <= 0 ? "due" : leftDays <= INSPECTION_SOON_DAYS ? "soon" : "ok",
+    };
+  }
+
+  return { positionKm: round(positionKm), positionIsOdometer, filter, inspection };
+}
+
 export function summary(all: FillupWithCalc[], s: Settings) {
   const items = all.filter((f) => !f.is_baseline);
   const totals = items.reduce(
@@ -52,6 +98,7 @@ export function summary(all: FillupWithCalc[], s: Settings) {
     paidOff: s.installCost > 0 && totals.saved >= s.installCost,
     remainingToPayOff: round(remaining),
     kmToPayOff: savedPerKm > 0 ? Math.round(remaining / savedPerKm) : null,
+    maintenance: maintenance(all, s, totals.km),
   };
 }
 

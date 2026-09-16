@@ -155,9 +155,23 @@ export function deleteSession(token: string) {
 export type Settings = {
   petrolConsumption: number; // l/100km on petrol
   installCost: number; // PLN
+  // Maintenance reminders
+  filterIntervalKm: number; // change LPG filters every N km (0 = off)
+  filterLastKm: number | null; // odometer (or app km) at the last filter change
+  inspectionIntervalMonths: number; // periodic LPG inspection every N months (0 = off)
+  inspectionLastDate: string | null; // YYYY-MM-DD of the last inspection
 };
 
-const defaults: Settings = { petrolConsumption: 8, installCost: 0 };
+const defaults: Settings = {
+  petrolConsumption: 8,
+  installCost: 0,
+  filterIntervalKm: 15000,
+  filterLastKm: null,
+  inspectionIntervalMonths: 12,
+  inspectionLastDate: null,
+};
+
+const NUMERIC_KEYS = new Set(["petrolConsumption", "installCost", "filterIntervalKm", "filterLastKm", "inspectionIntervalMonths"]);
 
 export function getSettings(userId: number): Settings {
   const rows = db.prepare("SELECT key, value FROM user_settings WHERE user_id = ?").all(userId) as {
@@ -166,7 +180,9 @@ export function getSettings(userId: number): Settings {
   }[];
   const out: Settings = { ...defaults };
   for (const r of rows) {
-    if (r.key in out) (out as any)[r.key] = Number(r.value);
+    if (!(r.key in out)) continue;
+    if (r.value === "") (out as any)[r.key] = null;
+    else (out as any)[r.key] = NUMERIC_KEYS.has(r.key) ? Number(r.value) : r.value;
   }
   return out;
 }
@@ -176,7 +192,7 @@ export function saveSettings(userId: number, s: Settings) {
     "INSERT INTO user_settings (user_id, key, value) VALUES (?, ?, ?) ON CONFLICT(user_id, key) DO UPDATE SET value = excluded.value"
   );
   const tx = db.transaction(() => {
-    for (const [k, v] of Object.entries(s)) stmt.run(userId, k, String(v));
+    for (const [k, v] of Object.entries(s)) stmt.run(userId, k, v === null || v === undefined ? "" : String(v));
   });
   tx();
 }

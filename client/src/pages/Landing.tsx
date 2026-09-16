@@ -17,6 +17,7 @@ const errors: Record<string, string> = {
         {loginEnabled && <a className="btn ghost" href="/api/auth/google">Zaloguj</a>}
       </nav>
 
+      <main>
       <section className="hero">
         <div className="hero-text">
           <h1>Ile naprawdę oszczędzasz na gazie?</h1>
@@ -84,6 +85,8 @@ const errors: Record<string, string> = {
           ))}
         </div>
       </section>
+
+      </main>
 
       <footer className="landing-footer">
         GazLog · <a href="/guides">Poradnik</a> · <a href="https://github.com/Maciekek/GazLog">GitHub</a> · <a href="/privacy">Polityka prywatności</a> · <a href="/terms">Regulamin</a>

@@ -36,6 +36,10 @@ const fillupSchema = z
 const settingsSchema = z.object({
   petrolConsumption: z.number().positive(),
   installCost: z.number().min(0),
+  filterIntervalKm: z.number().min(0).default(15000),
+  filterLastKm: z.number().min(0).nullable().default(null),
+  inspectionIntervalMonths: z.number().int().min(0).max(120).default(12),
+  inspectionLastDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null),
 });
 
 const api = express.Router();

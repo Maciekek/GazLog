@@ -1,4 +1,19 @@
-export type Settings = { petrolConsumption: number; installCost: number };
+export type Settings = {
+  petrolConsumption: number;
+  installCost: number;
+  filterIntervalKm: number;
+  filterLastKm: number | null;
+  inspectionIntervalMonths: number;
+  inspectionLastDate: string | null;
+};
+
+export type DueStatus = 'ok' | 'soon' | 'due' | 'unset';
+export type Maintenance = {
+  positionKm: number;
+  positionIsOdometer: boolean;
+  filter: { enabled: boolean; lastKm: number | null; dueKm: number | null; leftKm: number | null; status: DueStatus };
+  inspection: { enabled: boolean; lastDate: string | null; dueDate: string | null; leftDays: number | null; status: DueStatus };
+};
 
 export type FillupInput = {
   date: string;
@@ -33,6 +48,7 @@ export type Summary = {
   paidOff: boolean;
   remainingToPayOff: number;
   kmToPayOff: number | null;
+  maintenance: Maintenance;
 };
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
