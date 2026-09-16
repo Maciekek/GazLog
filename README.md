@@ -112,6 +112,6 @@ All endpoints except `/api/auth/*` require a session (cookie `gazlog_session`).
 - `GET /api/auth/google` – start sign-in; `GET /api/auth/me`; `POST /api/auth/logout`
 - `GET`/`PUT /api/settings` – `{ petrolConsumption, installCost }`
 - `GET /api/fillups` – `{ items, summary }`
-- `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id` – body: `date, distance_km, lpg_liters, lpg_price, petrol_price, odometer_km?, note?`. Distance is the source of truth; the optional odometer reading lets the form derive one from the other.
+- `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id` – body: `date, distance_km, lpg_liters, lpg_price, petrol_price, odometer_km?, note?`. Distance is the source of truth; the optional odometer reading lets the form derive one from the other. The first entry is a *baseline* (distance 0, liters 0, odometer required) that anchors odometer-based distances and is excluded from all statistics.
 - `DELETE /api/account` – delete the user and all their data
 - `GET /api/admin/users` – admin only: accounts with fill-up counts, km, spend, last login

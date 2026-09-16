@@ -51,11 +51,62 @@ export default function FillupFormView() {
   const editId = id ? Number(id) : null
   const editing = editId !== null ? items.find((f) => f.id === editId) ?? null : null
   if (editId !== null && !editing) return <Navigate to="/" replace />
+  // The very first entry is a baseline: date + odometer reading, no LPG kilometres yet.
+  const baselineMode = editing ? editing.is_baseline : items.length === 0
+  if (baselineMode) {
+    return <BaselineForm key={editId ?? 'baseline'} editing={editing} onSubmit={(input) => saveFillup(input, editId)} />
+  }
   // items are newest-first; "previous" = the entry just older than the one being edited (or the newest for a new entry)
   const olderThanEdited = editing ? items.slice(items.findIndex((f) => f.id === editing.id) + 1) : items
   const prevOdometer = olderThanEdited.find((f) => f.odometer_km !== null)?.odometer_km ?? null
-  return <FillupForm key={editId ?? 'new'} editing={editing} lastFillup={items[0]} prevOdometer={prevOdometer}
+  const lastFillup = items.find((f) => !f.is_baseline)
+  return <FillupForm key={editId ?? 'new'} editing={editing} lastFillup={lastFillup} prevOdometer={prevOdometer}
     petrolConsumption={settings?.petrolConsumption} onSubmit={(input) => saveFillup(input, editId)} />
+}
+
+function BaselineForm({ editing, onSubmit }: { editing: Fillup | null; onSubmit: (input: FillupInput) => Promise<void> }) {
+  const navigate = useNavigate()
+  const [date, setDate] = useState(editing?.date ?? today())
+  const [odometer, setOdometer] = useState(editing?.odometer_km != null ? String(editing.odometer_km) : '')
+  const [note, setNote] = useState(editing?.note ?? '')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const odo = Number(odometer.replace(',', '.'))
+    if (!date || !Number.isFinite(odo) || odo < 0 || odometer.trim() === '') return setError('Podaj stan licznika.')
+    setBusy(true)
+    setError(null)
+    try {
+      await onSubmit({ date, odometer_km: odo, distance_km: 0, lpg_liters: 0, lpg_price: 0, petrol_price: 0, note: note.trim() || null })
+      navigate('/')
+    } catch (err) {
+      setError(String(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="card">
+      <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>{editing ? 'Edycja wpisu startowego' : 'Pierwsze tankowanie'}</h2>
+      <p className="preview" style={{ marginTop: 0 }}>
+        Zatankuj gaz do pełna i wpisz stan licznika. Od tego odczytu będą liczone kilometry przy kolejnych tankowaniach.
+        Sam wpis startowy nie liczy się do oszczędności.
+      </p>
+      <form className="grid" onSubmit={submit}>
+        <label>Data<input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></label>
+        <label>Stan licznika (km)<input type="number" inputMode="numeric" step="any" min="0" value={odometer} onChange={(e) => setOdometer(e.target.value)} placeholder="np. 120400" required autoFocus /></label>
+        <label>Notatka<input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="np. montaż instalacji" /></label>
+        {error && <div className="error" style={{ gridColumn: '1 / -1' }}>{error}</div>}
+        <div className="actions">
+          <button type="submit" disabled={busy}>{editing ? 'Zapisz' : 'Zapisz stan licznika'}</button>
+          <button type="button" className="secondary" onClick={() => navigate('/')}>Anuluj</button>
+        </div>
+      </form>
+    </div>
+  )
 }
 
 type Props = {

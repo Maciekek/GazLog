@@ -14,6 +14,7 @@ export type Fillup = FillupInput & {
   id: number;
   odometer_km: number | null;
   note: string | null;
+  is_baseline: boolean;
   lpg_cost: number;
   petrol_cost: number;
   saved: number;

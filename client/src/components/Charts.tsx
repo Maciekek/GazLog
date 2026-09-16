@@ -59,12 +59,13 @@ const MOCK_ITEMS: Fillup[] = [
   const lpg_cost = (l as number) * lpg_price
   const petrol_cost = ((km as number) / 100) * 8 * petrol_price
   return {
-    id: -(i + 1), date: date as string, distance_km: km as number, lpg_liters: l as number, lpg_price, petrol_price, odometer_km: null, note: null,
+    id: -(i + 1), date: date as string, distance_km: km as number, lpg_liters: l as number, lpg_price, petrol_price, odometer_km: null, note: null, is_baseline: false,
     lpg_cost, petrol_cost, saved: petrol_cost - lpg_cost, lpg_per_100: ((l as number) / (km as number)) * 100,
   }
 })
 
-export default function Charts({ items, installCost }: { items: Fillup[]; installCost: number }) {
+export default function Charts({ items: allItems, installCost }: { items: Fillup[]; installCost: number }) {
+  const items = useMemo(() => allItems.filter((f) => !f.is_baseline), [allItems])
   const enough = items.length >= 2
   const data = useMemo(() => series(enough ? items : MOCK_ITEMS), [items, enough])
   if (enough) {

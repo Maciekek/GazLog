@@ -1,11 +1,14 @@
 import type { Fillup, Settings } from "./db.js";
 
 export type FillupWithCalc = Omit<Fillup, "user_id"> & {
+  is_baseline: boolean;
   lpg_cost: number;
   petrol_cost: number;
   saved: number;
   lpg_per_100: number;
 };
+
+export const isBaseline = (f: Pick<Fillup, "distance_km" | "lpg_liters">) => f.distance_km === 0 && f.lpg_liters === 0;
 
 export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   const lpg_cost = f.lpg_liters * f.lpg_price;
@@ -13,6 +16,7 @@ export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   const { user_id: _uid, ...rest } = f;
   return {
     ...rest,
+    is_baseline: isBaseline(f),
     lpg_cost: round(lpg_cost),
     petrol_cost: round(petrol_cost),
     saved: round(petrol_cost - lpg_cost),
@@ -20,7 +24,8 @@ export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   };
 }
 
-export function summary(items: FillupWithCalc[], s: Settings) {
+export function summary(all: FillupWithCalc[], s: Settings) {
+  const items = all.filter((f) => !f.is_baseline);
   const totals = items.reduce(
     (a, f) => {
       a.km += f.distance_km;

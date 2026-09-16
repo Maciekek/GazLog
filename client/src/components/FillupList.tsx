@@ -8,7 +8,7 @@ export default function FillupList({ items, onEdit, onDelete }: Props) {
     <div className="card">
       <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Historia</h2>
       {items.length === 0 ? (
-        <div className="empty">Brak tankowań. Kliknij „Nowe tankowanie”.</div>
+        <div className="empty">Brak wpisów. Zacznij od stanu licznika, klikając „Pierwsze tankowanie”.</div>
       ) : (
         <div className="list">
           {items.map((f) => (
@@ -21,6 +21,22 @@ export default function FillupList({ items, onEdit, onDelete }: Props) {
 }
 
 function FillupRow({ f, onEdit, onDelete }: { f: Fillup; onEdit: () => void; onDelete: () => void }) {
+  if (f.is_baseline) {
+    return (
+      <div className="row baseline">
+        <div className="main">
+          <span className="date">{f.date}</span>
+          <span className="badge">start</span>
+          <span>licznik {num(f.odometer_km ?? 0, 0)} km</span>
+          {f.note && <span className="muted">„{f.note}”</span>}
+        </div>
+        <div className="btns">
+          <button className="secondary small" onClick={onEdit}>Edytuj</button>
+          <button className="danger small" onClick={onDelete}>Usuń</button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="row">
       <div className="main">

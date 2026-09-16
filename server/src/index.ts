@@ -13,15 +13,25 @@ app.use(loadUser);
 
 app.use("/api/auth", authRouter);
 
-const fillupSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  distance_km: z.number().positive(),
-  lpg_liters: z.number().positive(),
-  lpg_price: z.number().positive(),
-  petrol_price: z.number().positive(),
-  odometer_km: z.number().nonnegative().nullable().optional(),
-  note: z.string().max(500).nullable().optional(),
-});
+// A regular fill-up has positive distance/liters/prices. A baseline entry (the very first odometer
+// reading, before any LPG kilometres) has all of them at 0 and a required odometer reading.
+const fillupSchema = z
+  .object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    distance_km: z.number().nonnegative(),
+    lpg_liters: z.number().nonnegative(),
+    lpg_price: z.number().nonnegative(),
+    petrol_price: z.number().nonnegative(),
+    odometer_km: z.number().nonnegative().nullable().optional(),
+    note: z.string().max(500).nullable().optional(),
+  })
+  .refine(
+    (f) => {
+      const baseline = f.distance_km === 0 && f.lpg_liters === 0;
+      return baseline ? f.odometer_km != null : f.distance_km > 0 && f.lpg_liters > 0 && f.lpg_price > 0 && f.petrol_price > 0;
+    },
+    { message: "Either a baseline entry (distance 0, liters 0, odometer required) or a fill-up with positive values" }
+  );
 
 const settingsSchema = z.object({
   petrolConsumption: z.number().positive(),

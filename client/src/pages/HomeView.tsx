@@ -17,7 +17,7 @@ export default function HomeView() {
   return (
     <>
       {summary && <SummaryCard s={summary} />}
-      <Link className="fab" to="/new">+ Nowe tankowanie</Link>
+      <Link className="fab" to="/new">{items.length === 0 ? '+ Pierwsze tankowanie' : '+ Nowe tankowanie'}</Link>
       {settings && <Charts items={items} installCost={settings.installCost} />}
       <FillupList items={items} onEdit={(f) => navigate(`/edit/${f.id}`)} onDelete={remove} />
     </>

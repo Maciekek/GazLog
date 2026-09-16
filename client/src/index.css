@@ -266,3 +266,6 @@ label > span { display: block; }
   .seg button { flex: 1; }
   .field-hint { grid-column: 1; margin-top: 0; }
 }
+
+.row.baseline { background: var(--bg); border-style: dashed; }
+.row.baseline .main { align-items: center; }
