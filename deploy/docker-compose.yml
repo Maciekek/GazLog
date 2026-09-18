@@ -1,6 +1,8 @@
 # Production: prebuilt image from GHCR. No source code or build step needed on the server.
 # TLS and routing are done by the shared vps-proxy stack (Caddy reading these labels).
 # See deploy/README.md.
+name: gazlog
+
 services:
   gazlog:
     image: ghcr.io/maciekek/gazlog:${GAZLOG_TAG:-latest}
