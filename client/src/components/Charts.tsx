@@ -24,14 +24,19 @@ function useWidth() {
   return { ref, W: w, IW: w - PAD.left - PAD.right }
 }
 
-function niceTicks(max: number, count = 4): number[] {
-  if (max <= 0) return [0]
-  const raw = max / count
+/** Evenly spaced "nice" ticks covering [min, max] (min may be negative; 0 is always a tick). */
+function niceTicks(max: number, count = 4, min = 0): number[] {
+  const lo = Math.min(0, min)
+  const hi = Math.max(max, lo + 1e-9)
+  const span = hi - lo
+  if (span <= 0) return [0]
+  const raw = span / count
   const mag = Math.pow(10, Math.floor(Math.log10(raw)))
   const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw
-  const top = Math.ceil(max / step - 1e-9) * step
+  const bottom = Math.floor(lo / step + 1e-9) * step
+  const top = Math.ceil(hi / step - 1e-9) * step
   const out: number[] = []
-  for (let v = 0; v <= top + step * 0.001; v += step) out.push(Math.round(v * 1000) / 1000)
+  for (let v = bottom; v <= top + step * 0.001; v += step) out.push(Math.round(v * 1000) / 1000)
   return out
 }
 
@@ -114,10 +119,12 @@ function SavingsChart({ data, installCost }: { data: Point[]; installCost: numbe
   const { ref: box, W, IW } = useWidth()
   const { ref, idx, onMove, onLeave } = useHover(data.length, IW)
   const maxY = Math.max(...data.map((d) => d.cumSaved), installCost > 0 ? installCost : 0, 1)
-  const ticks = niceTicks(maxY)
+  const minY = Math.min(0, ...data.map((d) => d.cumSaved))
+  const ticks = niceTicks(maxY, 4, minY)
   const top = ticks[ticks.length - 1]
+  const bottom = ticks[0]
   const x = (i: number) => PAD.left + (i / (data.length - 1)) * IW
-  const y = (v: number) => PAD.top + IH - (Math.max(0, v) / top) * IH
+  const y = (v: number) => PAD.top + IH - ((v - bottom) / (top - bottom)) * IH
   const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(d.cumSaved).toFixed(1)}`).join(' ')
   const area = `${path} L${x(data.length - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z`
   const paidIdx = installCost > 0 ? data.findIndex((d) => d.cumSaved >= installCost) : -1
@@ -134,8 +141,8 @@ function SavingsChart({ data, installCost }: { data: Point[]; installCost: numbe
         onMouseMove={onMove} onMouseLeave={onLeave} onTouchStart={onMove} onTouchMove={onMove} onTouchEnd={onLeave}>
         {ticks.map((t) => (
           <g key={t}>
-            <line className="grid" x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} />
-            <text className="tick" x={PAD.left - 8} y={y(t)} dy="0.35em" textAnchor="end">{t >= 1000 ? `${num(t / 1000, 1)}k` : num(t, 0)}</text>
+            <line className={t === 0 && bottom < 0 ? 'grid zero' : 'grid'} x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} />
+            <text className="tick" x={PAD.left - 8} y={y(t)} dy="0.35em" textAnchor="end">{Math.abs(t) >= 1000 ? `${num(t / 1000, 1)}k` : num(t, 0)}</text>
           </g>
         ))}
         <text className="tick" x={x(0)} y={H - 8} textAnchor="start">{shortDate(data[0].date)}</text>

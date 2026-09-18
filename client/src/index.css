@@ -202,6 +202,7 @@ button.danger.solid:disabled { opacity: 0.45; }
 .chart figcaption { padding: 0 0 0 0; }
 .chart .card-body { }
 .chart .grid { stroke: var(--border); stroke-width: 1; }
+.chart .grid.zero { stroke: var(--muted); }
 .chart .tick { fill: var(--muted); font-size: 11px; }
 .chart .ref { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; }
 .chart .ref-label { fill: var(--muted); font-size: 11px; }
