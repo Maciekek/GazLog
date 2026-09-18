@@ -48,7 +48,7 @@ App: `/`, `/new`, `/edit/:id`, `/settings`, `/admin`. Public: `/privacy`, `/term
 | Backups | `deploy/backup.sh` → `deploy/backups/`, 30-day retention; copy off-server manually |
 | Update | `deploy/update.sh`; nightly cron suggested (04:00 update, 03:30 backup) |
 
-Google OAuth app is published (production, external). Consent screen should link `/privacy` and `/terms`. The client secret shown in a screenshot on 2026-09-15 should be rotated if not done.
+Google OAuth app is published (production, external). Consent screen links `/privacy` and `/terms`; client secret rotated and prod redirect URI set (done 2026-09-18).
 
 ## Known gaps / ideas
 
