@@ -69,8 +69,12 @@ button:disabled { opacity: 0.6; cursor: default; }
 .brand { font-weight: 700; font-size: 1.2rem; }
 .btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 1rem; }
 .btn.ghost { color: var(--text); border: 1px solid var(--border); padding: 8px 14px; }
-.btn.google { background: var(--card); color: var(--text); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.btn.google:hover { border-color: var(--accent); }
+.btn.google { background: #fff; color: #1a1d21; border: 1px solid #d9dce1; padding: 14px 24px; font-size: 1.05rem; box-shadow: 0 6px 20px rgba(0,0,0,0.15); transition: transform 0.1s, box-shadow 0.1s; }
+.btn.google:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(0,0,0,0.2); border-color: #c5c9d0; }
+@media (prefers-color-scheme: dark) {
+  .btn.google { border-color: transparent; box-shadow: 0 0 0 3px rgba(63, 191, 143, 0.25), 0 8px 24px rgba(0,0,0,0.45); }
+  .btn.google:hover { box-shadow: 0 0 0 4px rgba(63, 191, 143, 0.4), 0 12px 28px rgba(0,0,0,0.5); }
+}
 .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; padding: 24px 0 56px; }
 .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; margin: 0 0 16px; letter-spacing: -0.02em; }
 .hero p { font-size: 1.1rem; color: var(--muted); line-height: 1.5; margin: 0 0 24px; }
