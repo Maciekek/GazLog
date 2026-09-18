@@ -112,6 +112,6 @@ All endpoints except `/api/auth/*` require a session (cookie `gazlog_session`).
 - `GET /api/auth/google` – start sign-in; `GET /api/auth/me`; `POST /api/auth/logout`
 - `GET`/`PUT /api/settings` – `{ petrolConsumption, installCost, filterIntervalKm, filterLastKm, inspectionIntervalMonths, inspectionLastDate }`
 - `GET /api/fillups` – `{ items, summary }`; `summary.maintenance` carries filter/inspection due status (1000 km / 30 days warning thresholds)
-- `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id` – body: `date, distance_km, lpg_liters, lpg_price, petrol_price, odometer_km?, note?`. Distance is the source of truth; the optional odometer reading lets the form derive one from the other. The first entry is a *baseline* (distance 0, liters 0, odometer required) that anchors odometer-based distances and is excluded from all statistics.
+- `POST /api/fillups`, `PUT /api/fillups/:id`, `DELETE /api/fillups/:id` – body: `date, distance_km, lpg_liters, lpg_price, petrol_price, odometer_km?, note?`. Distance is the source of truth; the optional odometer reading lets the form derive one from the other. The first entry is a *baseline* (distance 0, odometer required, optional liters+price of the first tank) that anchors odometer-based distances. Its tank counts as LPG spend and reduces savings, but never enters consumption or the fill-up count.
 - `DELETE /api/account` – delete the user and all their data
 - `GET /api/admin/users` – admin only: accounts with fill-up counts, km, spend, last login

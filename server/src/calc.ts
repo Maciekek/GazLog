@@ -8,7 +8,7 @@ export type FillupWithCalc = Omit<Fillup, "user_id"> & {
   lpg_per_100: number;
 };
 
-export const isBaseline = (f: Pick<Fillup, "distance_km" | "lpg_liters">) => f.distance_km === 0 && f.lpg_liters === 0;
+export const isBaseline = (f: Pick<Fillup, "distance_km">) => f.distance_km === 0;
 
 export function enrich(f: Fillup, s: Settings): FillupWithCalc {
   const lpg_cost = f.lpg_liters * f.lpg_price;
@@ -71,19 +71,22 @@ export function maintenance(all: FillupWithCalc[], s: Settings, totalKm: number,
 }
 
 export function summary(all: FillupWithCalc[], s: Settings) {
+  // Distance-based stats (count, km, consumption) use real fill-ups only; money and liters include the
+  // baseline tank, which was paid for but has no measurable interval behind it.
   const items = all.filter((f) => !f.is_baseline);
-  const totals = items.reduce(
+  const totals = all.reduce(
     (a, f) => {
       a.km += f.distance_km;
       a.liters += f.lpg_liters;
       a.lpgCost += f.lpg_cost;
       a.petrolCost += f.petrol_cost;
       a.saved += f.saved;
+      if (!f.is_baseline) a.litersDriven += f.lpg_liters;
       return a;
     },
-    { km: 0, liters: 0, lpgCost: 0, petrolCost: 0, saved: 0 }
+    { km: 0, liters: 0, litersDriven: 0, lpgCost: 0, petrolCost: 0, saved: 0 }
   );
-  const avgLpgPer100 = totals.km > 0 ? (totals.liters / totals.km) * 100 : 0;
+  const avgLpgPer100 = totals.km > 0 ? (totals.litersDriven / totals.km) * 100 : 0;
   const savedPerKm = totals.km > 0 ? totals.saved / totals.km : 0;
   const remaining = Math.max(0, s.installCost - totals.saved);
   return {

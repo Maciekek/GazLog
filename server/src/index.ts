@@ -14,7 +14,8 @@ app.use(loadUser);
 app.use("/api/auth", authRouter);
 
 // A regular fill-up has positive distance/liters/prices. A baseline entry (the very first odometer
-// reading, before any LPG kilometres) has all of them at 0 and a required odometer reading.
+// reading, before any LPG kilometres) has distance 0, a required odometer reading and optionally the
+// liters/price of that first tank (counted as cost, never as consumption).
 const fillupSchema = z
   .object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -27,10 +28,13 @@ const fillupSchema = z
   })
   .refine(
     (f) => {
-      const baseline = f.distance_km === 0 && f.lpg_liters === 0;
-      return baseline ? f.odometer_km != null : f.distance_km > 0 && f.lpg_liters > 0 && f.lpg_price > 0 && f.petrol_price > 0;
+      if (f.distance_km === 0) {
+        const tankOk = (f.lpg_liters === 0 && f.lpg_price === 0) || (f.lpg_liters > 0 && f.lpg_price > 0);
+        return f.odometer_km != null && tankOk;
+      }
+      return f.lpg_liters > 0 && f.lpg_price > 0 && f.petrol_price > 0;
     },
-    { message: "Either a baseline entry (distance 0, liters 0, odometer required) or a fill-up with positive values" }
+    { message: "Either a baseline entry (distance 0, odometer required, optional liters+price) or a fill-up with positive values" }
   );
 
 const settingsSchema = z.object({

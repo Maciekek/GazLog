@@ -28,6 +28,7 @@ function FillupRow({ f, onEdit, onDelete }: { f: Fillup; onEdit: () => void; onD
           <span className="date">{f.date}</span>
           <span className="badge">start</span>
           <span>licznik {num(f.odometer_km ?? 0, 0)} km</span>
+          {f.lpg_liters > 0 && <span>{num(f.lpg_liters)} l × {num(f.lpg_price, 2)} zł = {pln(f.lpg_cost)}</span>}
           {f.note && <span className="muted">„{f.note}”</span>}
         </div>
         <div className="btns">

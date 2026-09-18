@@ -1,12 +1,14 @@
 # Deploying GazLog on a VPS
 
-Runs the prebuilt image from GHCR behind Caddy (automatic HTTPS). Nothing is built on the server.
+Runs the prebuilt image from GHCR. Nothing is built on the server. TLS and routing come from
+the shared [vps-proxy](https://github.com/Maciekek/vps-proxy) stack: this compose only declares
+its domain via labels and joins the `web` network.
 
 ## Requirements
 
 - A Linux VPS with Docker and the Compose plugin (`docker compose version`).
+- [vps-proxy](https://github.com/Maciekek/vps-proxy) running (owns ports 80/443 and the `web` network).
 - A domain with an A (and optionally AAAA) record pointing at the VPS.
-- Ports 80 and 443 open.
 
 ## First deploy
 
@@ -14,12 +16,11 @@ Runs the prebuilt image from GHCR behind Caddy (automatic HTTPS). Nothing is bui
 # on the server
 mkdir -p ~/gazlog && cd ~/gazlog
 curl -fsSLO https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/docker-compose.yml
-curl -fsSLO https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/Caddyfile
 curl -fsSLO https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/update.sh
 curl -fsSLO https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/backup.sh
 curl -fsSL  https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/.env.example -o .env
 chmod +x update.sh backup.sh
-nano .env          # DOMAIN, ACME_EMAIL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_EMAILS
+nano .env          # DOMAIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ALLOWED_EMAILS
 
 docker compose up -d
 docker compose logs -f
@@ -71,8 +72,16 @@ docker compose start gazlog
 
 Set `GAZLOG_TAG=1.0.0` (a `v1.0.0` git tag) or a commit sha in `.env`, then `./update.sh`.
 
-## Without Caddy
+## Migrating from the bundled Caddy
 
-If you already run a reverse proxy, delete the `caddy` service, change `expose` to
-`ports: ["127.0.0.1:3001:3001"]` and point your proxy at it. Keep `BASE_URL=https://<DOMAIN>`
-so session cookies get the `Secure` flag.
+Older deployments ran their own `caddy` service from this compose. To switch:
+
+```bash
+cd ~/gazlog
+docker compose down                       # frees ports 80/443
+curl -fsSLO https://raw.githubusercontent.com/Maciekek/GazLog/main/deploy/docker-compose.yml
+rm -f Caddyfile
+# install vps-proxy (see its README), then:
+docker compose up -d --remove-orphans
+docker volume rm gazlog_caddy-data gazlog_caddy-config   # old certs, no longer needed
+```

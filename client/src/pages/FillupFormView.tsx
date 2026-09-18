@@ -69,17 +69,23 @@ function BaselineForm({ editing, onSubmit }: { editing: Fillup | null; onSubmit:
   const [date, setDate] = useState(editing?.date ?? today())
   const [odometer, setOdometer] = useState(editing?.odometer_km != null ? String(editing.odometer_km) : '')
   const [note, setNote] = useState(editing?.note ?? '')
+  const [liters, setLiters] = useState(editing && editing.lpg_liters > 0 ? String(editing.lpg_liters) : '')
+  const [price, setPrice] = useState(editing && editing.lpg_price > 0 ? String(editing.lpg_price) : '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const odo = Number(odometer.replace(',', '.'))
+    const n = (v: string) => Number(v.replace(',', '.'))
+    const odo = n(odometer)
     if (!date || !Number.isFinite(odo) || odo < 0 || odometer.trim() === '') return setError('Podaj stan licznika.')
+    const l = liters.trim() === '' ? 0 : n(liters)
+    const pr = price.trim() === '' ? 0 : n(price)
+    if ((l > 0) !== (pr > 0) || l < 0 || pr < 0 || !Number.isFinite(l) || !Number.isFinite(pr)) return setError('Podaj litry razem z ceną albo zostaw oba pola puste.')
     setBusy(true)
     setError(null)
     try {
-      await onSubmit({ date, odometer_km: odo, distance_km: 0, lpg_liters: 0, lpg_price: 0, petrol_price: 0, note: note.trim() || null })
+      await onSubmit({ date, odometer_km: odo, distance_km: 0, lpg_liters: l, lpg_price: pr, petrol_price: 0, note: note.trim() || null })
       navigate('/')
     } catch (err) {
       setError(String(err))
@@ -93,11 +99,13 @@ function BaselineForm({ editing, onSubmit }: { editing: Fillup | null; onSubmit:
       <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>{editing ? 'Edycja wpisu startowego' : 'Pierwsze tankowanie'}</h2>
       <p className="preview" style={{ marginTop: 0 }}>
         Zatankuj gaz do pełna i wpisz stan licznika. Od tego odczytu będą liczone kilometry przy kolejnych tankowaniach.
-        Sam wpis startowy nie liczy się do oszczędności.
+        Litry i cena są opcjonalne: wchodzą do wydatków na LPG, ale nie do spalania, bo nie ma jeszcze przejechanego odcinka.
       </p>
       <form className="grid" onSubmit={submit}>
         <label>Data<input type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></label>
         <label>Stan licznika (km)<input type="number" inputMode="numeric" step="any" min="0" value={odometer} onChange={(e) => setOdometer(e.target.value)} placeholder="np. 120400" required autoFocus /></label>
+        <label>Zatankowano LPG (l)<input type="number" inputMode="decimal" step="any" min="0" value={liters} onChange={(e) => setLiters(e.target.value)} placeholder="opcjonalnie" /></label>
+        <label>Cena LPG (zł/l)<input type="number" inputMode="decimal" step="any" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="opcjonalnie" /></label>
         <label>Notatka<input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="np. montaż instalacji" /></label>
         {error && <div className="error" style={{ gridColumn: '1 / -1' }}>{error}</div>}
         <div className="actions">

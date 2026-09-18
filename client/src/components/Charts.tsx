@@ -43,7 +43,7 @@ function series(items: Fillup[]) {
   return asc.map((f, i) => {
     cum += f.saved
     cumKm += f.distance_km
-    const win = asc.slice(Math.max(0, i - 2), i + 1)
+    const win = asc.slice(Math.max(0, i - 2), i + 1).filter((x) => !x.is_baseline)
     const winKm = win.reduce((s, x) => s + x.distance_km, 0)
     const winL = win.reduce((s, x) => s + x.lpg_liters, 0)
     return { ...f, cumSaved: cum, cumKm, rolling: winKm > 0 ? (winL / winKm) * 100 : 0 }
@@ -67,11 +67,13 @@ const MOCK_ITEMS: Fillup[] = [
 export default function Charts({ items: allItems, installCost }: { items: Fillup[]; installCost: number }) {
   const items = useMemo(() => allItems.filter((f) => !f.is_baseline), [allItems])
   const enough = items.length >= 2
+  // Savings accumulate over every entry (the baseline tank is a cost); consumption only over real intervals.
+  const savingsData = useMemo(() => series(enough ? allItems : MOCK_ITEMS), [allItems, enough])
   const data = useMemo(() => series(enough ? items : MOCK_ITEMS), [items, enough])
   if (enough) {
     return (
       <div className="charts">
-        <SavingsChart data={data} installCost={installCost} />
+        <SavingsChart data={savingsData} installCost={installCost} />
         <ConsumptionChart data={data} />
       </div>
     )
